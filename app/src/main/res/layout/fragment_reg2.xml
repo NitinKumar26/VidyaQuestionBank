@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android ="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="28dp">
+
+    <TextView
+        android:id="@+id/login_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/raleway_bold"
+        android:layout_centerHorizontal="true"
+        android:text="@string/register_now"
+        android:textColor="@color/colorPrimary"
+        android:textSize="25sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/login_text"
+        android:layout_margin="20dp"
+        android:orientation="vertical">
+
+
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:background="@drawable/spinner_border"
+            android:layout_width="match_parent"
+            android:layout_height="50dp">
+
+            <Spinner
+                android:layout_gravity="center"
+                android:id="@+id/classSelection"
+                android:background="@android:color/transparent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginEnd="@dimen/margin_1"
+                 />
+
+        </LinearLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edTv_school"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/school"
+                android:inputType="text"
+                android:paddingStart="22dp"
+                android:maxLines="1"
+                android:fontFamily="@font/raleway"
+                android:paddingEnd="22dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edTv_city"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/city"
+                android:inputType="text"
+                android:paddingStart="22dp"
+                android:maxLines="1"
+                android:fontFamily="@font/raleway"
+                android:paddingEnd="22dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:background="@drawable/spinner_border"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="16dp">
+
+            <Spinner
+                android:layout_gravity="center"
+                android:id="@+id/typeSelection"
+                android:background="@android:color/transparent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginEnd="@dimen/margin_1"
+                />
+
+        </LinearLayout>
+
+
+
+        <Button
+            android:id="@+id/send_verification_code_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/send_verification_code"
+            android:textColor="#ffffff"
+            android:fontFamily="@font/raleway_medium"
+            android:textSize="20sp"
+            android:background="@drawable/button_gradient"/>
+
+    </LinearLayout>
+</RelativeLayout>

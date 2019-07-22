@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:orientation="vertical"
+        android:gravity="top">
+
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/viewPager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/indicator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerInParent="true"
+            app:tabBackground="@drawable/indicator_selector"
+            app:tabGravity="center"
+            app:tabIndicatorHeight="0dp" />
+
+    </RelativeLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:layout_gravity="center_horizontal"
+        android:scrollbars="none" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/edittext_background"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:layout_marginTop="12dp">
+
+        <EditText
+            android:id="@+id/edTv_request_book"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/edittext_background"
+            android:hint="@string/request_a_book"
+            android:maxLines="1"
+            android:padding="8dp"
+            android:fontFamily="@font/raleway_regular"/>
+
+        <Button
+            android:id="@+id/btn_request_now"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Request Now"
+            android:background="@drawable/button_gradient"
+            android:padding="8dp"
+            android:textColor="@color/colorWhite"
+            android:fontFamily="@font/raleway_regular"/>
+
+    </LinearLayout>
+
+</LinearLayout>

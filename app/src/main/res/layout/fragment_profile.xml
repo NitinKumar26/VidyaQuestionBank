@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="130dp"
+        android:src="@drawable/banner"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="24dp"/>
+
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        app:srcCompat="@drawable/ic_man"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"/>
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        tools:text="Nitin Kumar"
+        android:fontFamily="@font/raleway_medium"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvClass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            tools:text="Class 10"
+            android:fontFamily="@font/raleway_medium"
+            android:textColor="@color/colorPrimary"
+            android:gravity="center"
+            />
+
+        <TextView
+            android:id="@+id/school"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="8dp"
+            tools:text="Vardhman Academy"
+            android:gravity="center"
+            android:textColor="@color/colorPrimary"
+            android:fontFamily="@font/raleway_medium" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            tools:text="nk037578@gmail.com"
+            android:fontFamily="@font/raleway_medium"
+            android:textColor="@color/colorPrimary"
+            android:gravity="center"
+            />
+
+        <TextView
+            android:id="@+id/mobile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="8dp"
+            tools:text="8923330735"
+            android:gravity="center"
+            android:textColor="@color/colorPrimary"
+            android:fontFamily="@font/raleway_medium" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/city"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            tools:text="Meerut"
+            android:fontFamily="@font/raleway_medium"
+            android:textColor="@color/colorPrimary"
+            android:gravity="center"
+            />
+
+        <TextView
+            android:id="@+id/type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="8dp"
+            tools:text="Student"
+            android:gravity="center"
+            android:textColor="@color/colorPrimary"
+            android:fontFamily="@font/raleway_medium" />
+
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/button_gradient"
+        android:text="Logout"
+        android:textColor="@color/colorWhite"
+        android:layout_marginTop="24dp"/>
+
+
+</LinearLayout>
