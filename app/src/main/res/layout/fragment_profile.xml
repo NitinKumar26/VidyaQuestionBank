@@ -11,8 +11,10 @@
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="130dp"
+        android:layout_height="100dp"
         android:src="@drawable/banner"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="24dp"/>
 
@@ -32,6 +34,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         tools:text="Nitin Kumar"
+        android:textAllCaps="true"
         android:fontFamily="@font/raleway_medium"
         />
 
@@ -49,7 +52,7 @@
             android:layout_marginTop="8dp"
             tools:text="Class 10"
             android:fontFamily="@font/raleway_medium"
-            android:textColor="@color/colorPrimary"
+            android:textColor="@color/colorPrimaryDark"
             android:gravity="center"
             />
 
@@ -62,7 +65,7 @@
             android:layout_marginStart="8dp"
             tools:text="Vardhman Academy"
             android:gravity="center"
-            android:textColor="@color/colorPrimary"
+            android:textColor="@color/colorPrimaryDark"
             android:fontFamily="@font/raleway_medium" />
 
     </LinearLayout>
@@ -81,7 +84,7 @@
             android:layout_marginTop="8dp"
             tools:text="nk037578@gmail.com"
             android:fontFamily="@font/raleway_medium"
-            android:textColor="@color/colorPrimary"
+            android:textColor="@color/colorPrimaryDark"
             android:gravity="center"
             />
 
@@ -94,7 +97,7 @@
             android:layout_marginStart="8dp"
             tools:text="8923330735"
             android:gravity="center"
-            android:textColor="@color/colorPrimary"
+            android:textColor="@color/colorPrimaryDark"
             android:fontFamily="@font/raleway_medium" />
 
     </LinearLayout>
@@ -113,7 +116,7 @@
             android:layout_marginTop="8dp"
             tools:text="Meerut"
             android:fontFamily="@font/raleway_medium"
-            android:textColor="@color/colorPrimary"
+            android:textColor="@color/colorPrimaryDark"
             android:gravity="center"
             />
 
@@ -126,7 +129,7 @@
             android:layout_marginStart="8dp"
             tools:text="Student"
             android:gravity="center"
-            android:textColor="@color/colorPrimary"
+            android:textColor="@color/colorPrimaryDark"
             android:fontFamily="@font/raleway_medium" />
 
     </LinearLayout>

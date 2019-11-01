@@ -1,14 +1,16 @@
 package in.completecourse.questionbank.model;
 
+import android.graphics.drawable.Drawable;
+
 public class Component {
     private String mComponentName, mComponentKiId, mComponentURL;
-    private int cardBackground;
+    private Drawable cardBackground;
 
-    public int getCardBackground() {
+    public Drawable getCardBackground() {
         return cardBackground;
     }
 
-    public void setCardBackground(int cardBackground) {
+    public void setCardBackground(Drawable cardBackground) {
         this.cardBackground = cardBackground;
     }
 
@@ -20,9 +22,11 @@ public class Component {
         this.mComponentName = mComponentName;
     }
 
-    public String getmComponentKiId() {
-        return mComponentKiId;
-    }
+// --Commented out by Inspection START (2/11/19 12:17 AM):
+//    public String getmComponentKiId() {
+//        return mComponentKiId;
+//    }
+// --Commented out by Inspection STOP (2/11/19 12:17 AM)
 
     public void setmComponentKiId(String mComponentKiId) {
         this.mComponentKiId = mComponentKiId;

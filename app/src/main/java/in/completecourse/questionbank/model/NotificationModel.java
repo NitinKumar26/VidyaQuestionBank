@@ -39,9 +39,11 @@ public class NotificationModel {
         this.serial = serial;
     }
 
-    public NotificationModel(String heading, String subheading, String url){
-        this.mHeading = heading;
-        this.mSubHeading = subheading;
-        this.url = url;
-    }
+// --Commented out by Inspection START (2/11/19 12:17 AM):
+//    public NotificationModel(String heading, String subheading, String url){
+//        this.mHeading = heading;
+//        this.mSubHeading = subheading;
+//        this.url = url;
+//    }
+// --Commented out by Inspection STOP (2/11/19 12:17 AM)
 }

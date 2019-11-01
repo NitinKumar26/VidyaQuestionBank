@@ -105,18 +105,13 @@ public class CompetitionUpdatesActivity extends AppCompatActivity {
                         item.setUpdateKaName(chapterObject.getString("comptkanaam"));
                         item.setUpdateKaLink(chapterObject.getString("referencelink"));
                         item.setUpdateKaDesc(chapterObject.getString("details"));
-                        item.setSerialNumber(String.valueOf(i+1) + ".");
+                        item.setSerialNumber((i + 1) + ".");
                         activity.updatesList.add(item);
                     }
 
                 }else{
                     final String msg = jsonResponse.getString("message");
-                    activity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    activity.runOnUiThread(() -> Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show());
                 }
             } catch (Exception e) { e.printStackTrace();}
             return null;

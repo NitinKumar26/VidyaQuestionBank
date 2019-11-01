@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import in.completecourse.questionbank.model.NotificationModel;
 
 public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder> {
-    private Context context;
-    private ArrayList<NotificationModel> notificationItemList;
+    private final Context context;
+    private final ArrayList<NotificationModel> notificationItemList;
 
     public NotificationAdapter(Context context, ArrayList<NotificationModel> list){
         this.notificationItemList = list;

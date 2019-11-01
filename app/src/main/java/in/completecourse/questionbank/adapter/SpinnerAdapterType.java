@@ -18,7 +18,6 @@ public class SpinnerAdapterType extends ArrayAdapter<String> {
 
     public SpinnerAdapterType(@NonNull Context context, int resource, String[] strArr) {
         super(context, resource, 0, strArr);
-        Context mContext = context;
         this.mLayoutInflater = LayoutInflater.from(context);
         this.mResource = resource;
         this.mStringArray = strArr;

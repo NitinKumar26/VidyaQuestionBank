@@ -6,41 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="in.completecourse.MainActivity">
-
-
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBAr"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar_main"
-            android:layout_width="match_parent"
-            android:layout_height="?android:attr/actionBarSize"
-            app:popupTheme="@style/AppTheme.PopupOverlay">
-
-            <ImageView
-                android:layout_height="40dp"
-                android:layout_width="40dp"
-                android:src="@drawable/cc_logo"
-                android:layout_marginTop="6dp"
-                android:layout_gravity="start|center_vertical"/>
-
-            <TextView
-                android:id="@+id/toolbar_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
-                android:text="@string/notification"
-                android:textColor="#ffffff"
-                android:textSize="16sp"
-                android:fontFamily="@font/raleway"
-                android:textStyle="bold"/>
-
-        </androidx.appcompat.widget.Toolbar>
-    </com.google.android.material.appbar.AppBarLayout>
+    tools:context="in.completecourse.questionbank.MainActivity">
 
 
     <FrameLayout
@@ -51,18 +17,13 @@
     </FrameLayout>
 
 
-    <me.nitin.lib.NiceBottomBar
+    <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/navigation"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="56dp"
         android:layout_gravity="bottom"
-        android:background="@drawable/shape"
         app:menu="@menu/bottom_navigation_menu"
-        app:labelVisibilityMode="unlabeled"
-        app:indicatorWidth="30dp"
-        app:indicatorInterpolator="anticipateOvershoot"
-        app:textColorActive="@color/colorPrimary"
-        app:indicatorColor="@color/colorPrimary"
+        app:itemTextColor="@color/navigation_item_color"
         app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

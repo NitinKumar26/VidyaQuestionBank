@@ -11,6 +11,9 @@ public class AppConfig {
     //User success URL
     public static final String URL_USER_SUCCESS = "http://qb.vidyastore.in/api/UserSuccess";
 
+    //Reset Password URL
+    public static final String URL_RESET_PASSWORD = "http://qb.vidyastore.in/api/updatePassword";
+
     //User details URL
     public static final String URL_USER_DETAILS = "http://qb.vidyastore.in/api/UserDetails";
 
@@ -32,13 +35,12 @@ public class AppConfig {
     //Notification URL
     public static final String URL_NOTIFICATION = "http://completecourse.in/api/GetNotifications";
 
+// --Commented out by Inspection START (2/11/19 12:17 AM):
+//    //URL VersionCode
+//    public static final String URL_VERSION_CODE = "http://qb.vidyastore.in/api/GetVcode?id=";
+// --Commented out by Inspection STOP (2/11/19 12:17 AM)
 
-    //URL VersionCode
-    public static final String URL_VERSION_CODE = "http://qb.vidyastore.in/api/GetVcode?id=";
+    //URL Send OTP for password reset
+    public static final String URL_SEND_OTP = "http://qb.vidyastore.in/api/sendOTP";
 
-    //Developer Key
-    public static final String DEVELOPER_KEY ="AIzaSyBKcNgayUCwImxYvKYKLhWZKHVTWwgzvkI";
-
-    //Youtube Video ID
-    public static final String YOUTUBE_VIDEO_CODE = "BusaEtHDrPs";
 }

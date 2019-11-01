@@ -1,6 +1,5 @@
 package in.completecourse.questionbank.adapter;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -23,14 +22,14 @@ import in.completecourse.questionbank.R;
 public class NewArrivalAdapter extends RecyclerView.Adapter<NewArrivalAdapter.MyViewHolder> {
 
     private final List<BookNewArrival> booklist;
-    private Context context;
+    private final Context context;
 
     class MyViewHolder extends RecyclerView.ViewHolder {
         final TextView name;
         final TextView price;
         final TextView code;
         final ImageView thumbnail;
-        final TextView rupeeSign;
+        //final TextView rupeeSign;
 
         MyViewHolder(View view) {
             super(view);
@@ -38,7 +37,7 @@ public class NewArrivalAdapter extends RecyclerView.Adapter<NewArrivalAdapter.My
             price = view.findViewById(R.id.price);
             code = view.findViewById(R.id.code_store);
             thumbnail = view.findViewById(R.id.thumbnail);
-            rupeeSign = view.findViewById(R.id.ruppee_sign);
+            //rupeeSign = view.findViewById(R.id.ruppee_sign);
         }
     }
 
@@ -55,8 +54,6 @@ public class NewArrivalAdapter extends RecyclerView.Adapter<NewArrivalAdapter.My
         return new MyViewHolder(itemView);
     }
 
-
-    @SuppressLint("CheckResult")
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, final int position) {
         final BookNewArrival book = booklist.get(position);
@@ -64,19 +61,17 @@ public class NewArrivalAdapter extends RecyclerView.Adapter<NewArrivalAdapter.My
         holder.price.setText(book.getRate());
         holder.code.setText(book.getCode());
 
-            Glide.with((context))
-                    .asBitmap()
-                    .load(book.getUrl())
-                    .placeholder(R.drawable.background_gradient)
-                    .into(holder.thumbnail);
-
+        Glide.with((context))
+                .asBitmap()
+                .load(book.getUrl())
+                .placeholder(R.drawable.background_gradient)
+                .into(holder.thumbnail);
     }
 
     @Override
     public int getItemCount() {
         return booklist.size();
     }
-
 
     public interface ClickListener {
         void onClick(int position);

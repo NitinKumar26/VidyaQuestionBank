@@ -18,26 +18,54 @@ public class SpinAdapter extends ArrayAdapter<String> {
 
     public SpinAdapter(@NonNull Context context, int resource, String[] strArr) {
         super(context, resource, 0, strArr);
-        Context mContext = context;
         this.mLayoutInflater = LayoutInflater.from(context);
         this.mResource = resource;
         this.mStringArray = strArr;
     }
 
     private View homeView(int i, ViewGroup viewGroup){
-        View inflate = this.mLayoutInflater.inflate(this.mResource, viewGroup, false);
-        ((TextView)inflate.findViewById(R.id.offer_type_txt)).setText(Html.fromHtml(this.mStringArray[i] +
-                "<sup><small>th</small></sup> Class"));
-        return inflate;
+        View view = this.mLayoutInflater.inflate(this.mResource, viewGroup, false);
+
+        switch (i%3){
+            case 0:
+            case 2:
+                ((TextView)view.findViewById(R.id.offer_type_txt)).setText(Html.fromHtml(this.mStringArray[i] +
+                        "<sup><small>th</small></sup>"));
+                ((TextView)view.findViewById(R.id.tvclass)).setText("Class");
+                break;
+            case 1:
+                ((TextView)view.findViewById(R.id.offer_type_txt)).setText(Html.fromHtml(this.mStringArray[i] +
+                        "<sup><small>वीं</small></sup>"));
+                ((TextView)view.findViewById(R.id.tvclass)).setText("कक्षा");
+                break;
+
+        }
+
+        return view;
     }
 
     @Override
-    public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        if (convertView == null){
-            convertView = this.mLayoutInflater.inflate(R.layout.spinner_new_view, parent, false);
+    public View getDropDownView(int i, @Nullable View view, @NonNull ViewGroup parent) {
+        if (view == null){
+            view = this.mLayoutInflater.inflate(R.layout.spinner_new_view, parent, false);
         }
-        ((TextView) convertView.findViewById(R.id.offer_type_txt)).setText(Html.fromHtml(this.mStringArray[position] + "<sup><small>th</small></sup> Class"));
-        return convertView;
+
+        switch (i%3){
+            case 0:
+            case 2:
+                ((TextView)view.findViewById(R.id.offer_type_txt)).setText(Html.fromHtml(this.mStringArray[i] +
+                        "<sup><small>th</small></sup>"));
+                ((TextView)view.findViewById(R.id.tvclass)).setText("Class");
+                break;
+            case 1:
+                ((TextView)view.findViewById(R.id.offer_type_txt)).setText(Html.fromHtml(this.mStringArray[i] +
+                        "<sup><small>वीं</small></sup>"));
+                ((TextView)view.findViewById(R.id.tvclass)).setText("कक्षा");
+                break;
+
+        }
+
+        return view;
     }
 
     @NonNull

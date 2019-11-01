@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Vidya Question Bank</string>
-    <string name="title_activity_welcome">होम स्क्रीन</string>
     <string name="next">NEXT</string>
     <string name="skip">SKIP</string>
     <string name="start">GOT IT</string>
@@ -10,38 +9,25 @@
     <string name="privacy_warning">By registering you agree to</string>
     <string name="user_registration">User registration terms</string>
     <string name="privacy_policy">Privacy Policy</string>
-    <string name="and">तथा</string>
     <string name="name">Name</string>
     <string name="mobile_number">Mobile Number</string>
     <string name="send_verification_code">Send Otp</string>
     <string name="home">Home</string>
-    <string name="notification">Notification</string>
-    <string name="item_name">वस्तु का नाम</string>
     <string name="company_image">ग्रिड छवि</string>
     <string name="text_chemistry">रसायन विज्ञान</string>
     <string name="text_mathematics">गणित</string>
     <string name="text_biology">जीवविज्ञान</string>
     <string name="text_science">विज्ञान</string>
-    <string name="text_english">अंग्रेज़ी</string>
+    <string name="text_science_english">Science</string>
     <string name="text_physics">भौतिक विज्ञान</string>
-    <string name="welcome_text">विद्या प्रकाशन मंदिर (प्रा) लिमिटेड</string>
-    <string name="vidya_motto">सीखना, सेवा करना, नेतृत्व करना</string>
-    <string name="chapter_name">अध्याय का नाम</string>
     <string name="please_enter_the_one_time_password">Please Enter the One Time Password</string>
     <string name="please_update_the_app_to_continue">Please update the app to continue</string>
     <string name="update_now">Update Now</string>
-    <string name="sample_admob_id">ca-app-pub-3940256099942544~3347511713</string>
-    <string name="admob_app_id">ca-app-pub-4214231949040116~5453561917</string>
-    <string name="interstitial_ad_id">ca-app-pub-4214231949040116/2061111819</string>
-    <string name="interstitial_test_id">ca-app-pub-3940256099942544/1033173712</string>
-    <string name="banner_ad_unit">ca-app-pub-4214231949040116/2297039242</string>
-    <string name="banner_test_id">ca-app-pub-3940256099942544/6300978111</string>
-    <string name="video_ad_unit_for_class_details">ca-app-pub-4214231949040116/5103570218</string>
-    <string name="video_ad_unit_for_update_activity">ca-app-pub-4214231949040116/5103570218</string>
+    <string name="admob_app_id">ca-app-pub-4214231949040116~8644084695</string>
+    <string name="interstitial_ad_id">ca-app-pub-4214231949040116/4206487482</string>
+    <string name="banner_ad_unit">ca-app-pub-4214231949040116/6010523742</string>
     <string name="know_more">Know more..</string>
-    <string name="error_player">There was an error initializing the YouTubePlayer (%1$s)</string>
     <string name="mathematics">Mathematics</string>
-    <string name="for_complete_success">For Complete Success</string>
     <string name="password">Password</string>
     <string name="email">Email</string>
     <string name="register_now">Register Now</string>
@@ -50,4 +36,13 @@
     <string name="request_a_book">Request a book</string>
     <string name="class_details">Class %1$s U.P. Board</string>
     <string name="profile">Profile</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="re_enter_password">Re-enter Password</string>
+    <string name="text_physics_english">Physics</string>
+    <string name="text_chemistry_english">Chemistry</string>
+    <string name="text_mathematics_english">Mathematics</string>
+    <string name="text_biology_english">Biology</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="free">Free</string>
 </resources>

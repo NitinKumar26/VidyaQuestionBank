@@ -6,11 +6,9 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -26,6 +24,9 @@ import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import cz.msebera.android.httpclient.HttpResponse;
 import cz.msebera.android.httpclient.client.HttpClient;
 import cz.msebera.android.httpclient.client.methods.HttpPost;
@@ -40,117 +41,107 @@ import in.completecourse.questionbank.app.AppConfig;
 import in.completecourse.questionbank.helper.HelperMethods;
 
 public class RegistrationFragment2 extends Fragment {
-    private TextInputEditText edTvSchool, edTvCity;
     private ProgressDialog pDialog;
-    private String name, email, mobileNumber, password, userClass, school, userCity, userType, id;
+    private Bundle bundle;
+    private String userClass;
+    private String userType;
+    @BindView(R.id.classSelection)
+    Spinner classSelectionSpinner;
+    @BindView(R.id.typeSelection)
+    Spinner typeSelectionSpinner;
+    @BindView(R.id.edTv_school)
+    TextInputEditText edTvSchool;
+    @BindView(R.id.edTv_city)
+    TextInputEditText edTvCity;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_reg2, container, false);
+        View view = inflater.inflate(R.layout.fragment_reg2, container, false);
+        ButterKnife.bind(this, view);
+        return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Bundle bundle = getArguments();
-        Spinner classSelectionSpinner = view.findViewById(R.id.classSelection);
-        Spinner typeSelectionSpinner = view.findViewById(R.id.typeSelection);
-        edTvSchool = view.findViewById(R.id.edTv_school);
-        edTvCity = view.findViewById(R.id.edTv_city);
 
-        String[] spinnerItemsClass = new String[]{"Choose Class", "9", "10", "11", "12"};
-
+        bundle = getArguments();
+        String[] spinnerItemsClass = new String[]{"Choose Class", "10", "12"};
         String[] spinnerItemsType = new String[]{"Choose Type", "Teacher", "Student"};
         SpinAdapter spinnerAdapter = new SpinAdapter(view.getContext(), R.layout.spinner_row , spinnerItemsClass);
         SpinnerAdapterType spinAdapter = new SpinnerAdapterType(view.getContext(), R.layout.spinner_row, spinnerItemsType);
         typeSelectionSpinner.setAdapter(spinAdapter);
-
         classSelectionSpinner.setAdapter(spinnerAdapter);
 
+    }
 
+    @OnClick(R.id.send_verification_code_button)
+    void sendVerificationCode(){
+            int position = classSelectionSpinner.getSelectedItemPosition();
+            int positionType = typeSelectionSpinner.getSelectedItemPosition();
+            if (position == 0){
+                userClass = "none";
+            }else if (position == 1){
+                userClass = "4";
+            }else if (position == 2){
+                userClass = "3";
+            }else if(position  == 3){
+                userClass = "2";
+            }else if(position == 4){
+                userClass = "1";
+            }
 
-        Button sendOTP = view.findViewById(R.id.send_verification_code_button);
-        sendOTP.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int position = classSelectionSpinner.getSelectedItemPosition();
-                int positionType = typeSelectionSpinner.getSelectedItemPosition();
-                if (position == 0){
-                    userClass = "none";
-                }else if (position == 1){
-                    userClass = "4";
-                }else if (position == 2){
-                    userClass = "3";
-                }else if(position  == 3){
-                    userClass = "2";
-                }else if(position == 4){
-                    userClass = "1";
-                }
+            if (positionType == 0 ){
+                userType = "none";
+            }
+            else if (positionType == 1){
+                userType = "Teacher";
+            }else if(positionType == 2){
+                userType = "Student";
+            }
+            assert bundle != null;
+        String name = bundle.getString("name");
+        String email = bundle.getString("email");
+        String mobileNumber = bundle.getString("mobileNumber");
+        String password = bundle.getString("password");
+        String userCity = edTvCity.getText().toString().toLowerCase().trim();
+        String school = edTvSchool.getText().toString().toLowerCase().trim();
+        String id = HelperMethods.generateChecksum();
 
-                if (positionType == 0 ){
-                    userType = "none";
-                }
-                else if (positionType == 1){
-                    userType = "Teacher";
-                }else if(positionType == 2){
-                    userType = "Student";
-                }
-                assert bundle != null;
-                name = bundle.getString("name");
-                email = bundle.getString("email");
-                mobileNumber = bundle.getString("mobileNumber");
-                password = bundle.getString("password");
-                userCity = edTvCity.getText().toString().toLowerCase().trim();
-                school = edTvSchool.getText().toString().toLowerCase().trim();
-                id = HelperMethods.generateChecksum();
-
-                Log.e("name", name);
-                Log.e("email", email);
-                Log.e("password", password);
-                Log.e("mobileNumber", mobileNumber);
-                Log.e("userType", userType + "" );
-                Log.e("userClass", userClass + "");
-                Log.e("school", school);
-                Log.e("city", userCity);
-                if (isNetworkAvailable()) {
-                    if (!name.isEmpty() && !email.isEmpty() && !mobileNumber.isEmpty() && !password.isEmpty()&&
-                            !userClass.isEmpty()&& !school.isEmpty() && !userCity.isEmpty() && !userType.isEmpty()) {
-                        if (!userClass.equalsIgnoreCase("none")) {
-                            if (!userType.equalsIgnoreCase("none")) {
-                                JSONObject dataObj = new JSONObject();
-                                try {
-                                    dataObj.putOpt("uname", name.toLowerCase());
-                                    dataObj.putOpt("uemail", email);
-                                    dataObj.putOpt("umobile", mobileNumber);
-                                    dataObj.putOpt("upassword", password);
-                                    dataObj.putOpt("uclass", userClass);
-                                    dataObj.putOpt("uschool", school.toLowerCase());
-                                    dataObj.putOpt("ucity", userCity.toLowerCase());
-                                    dataObj.putOpt("usertype", userType);
-                                    dataObj.put("id", id);
-                                    RegistrationFragment2.JSONTransmitter jsonTransmitter = new RegistrationFragment2.JSONTransmitter(RegistrationFragment2.this);
-                                    jsonTransmitter.execute(dataObj);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }else{
-                                Toast.makeText(getContext(), "Please choose your type", Toast.LENGTH_SHORT).show();
+            if (isNetworkAvailable()) {
+                if (!name.isEmpty() && !email.isEmpty() && !mobileNumber.isEmpty() && !password.isEmpty()&&
+                        !userClass.isEmpty()&& !school.isEmpty() && !userCity.isEmpty() && !userType.isEmpty()) {
+                    if (!userClass.equalsIgnoreCase("none")) {
+                        if (!userType.equalsIgnoreCase("none")) {
+                            JSONObject dataObj = new JSONObject();
+                            try {
+                                dataObj.putOpt("uname", name.toLowerCase());
+                                dataObj.putOpt("uemail", email);
+                                dataObj.putOpt("umobile", mobileNumber);
+                                dataObj.putOpt("upassword", password);
+                                dataObj.putOpt("uclass", userClass);
+                                dataObj.putOpt("uschool", school.toLowerCase());
+                                dataObj.putOpt("ucity", userCity.toLowerCase());
+                                dataObj.putOpt("usertype", userType);
+                                dataObj.put("id", id);
+                                JSONTransmitter jsonTransmitter = new JSONTransmitter(RegistrationFragment2.this);
+                                jsonTransmitter.execute(dataObj);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
                         }else{
-                            Toast.makeText(getContext(), "Please choose your class", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Please choose your type", Toast.LENGTH_SHORT).show();
                         }
-                    } else {
-                        Toast.makeText(getContext(), "Please fill the required details", Toast.LENGTH_SHORT).show();
+                    }else{
+                        Toast.makeText(getContext(), "Please choose your class", Toast.LENGTH_SHORT).show();
                     }
-                }else{
-                    Toast.makeText(getContext(), "Please check your Internet connection.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getContext(), "Please fill the required details", Toast.LENGTH_SHORT).show();
                 }
-
+            }else{
+                Toast.makeText(getContext(), "Please check your Internet connection.", Toast.LENGTH_SHORT).show();
             }
-        });
-
-
     }
 
     /**
@@ -167,9 +158,6 @@ public class RegistrationFragment2 extends Fragment {
         }
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
-
-
-
 
     private static class JSONTransmitter extends AsyncTask<JSONObject, JSONObject, JSONObject> {
         private final WeakReference<RegistrationFragment2> activityWeakReference;
@@ -224,12 +212,7 @@ public class RegistrationFragment2 extends Fragment {
                 }else{
                     final String msg = jsonResponse.getString("error");
                     if (activity.getActivity() != null) {
-                        activity.getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(activity.getContext(), msg, Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                        activity.getActivity().runOnUiThread(() -> Toast.makeText(activity.getContext(), msg, Toast.LENGTH_SHORT).show());
                     }
                 }
             } catch (Exception e) { e.printStackTrace();}

@@ -37,26 +37,20 @@ public class CompetitionUpdatesAdapter extends RecyclerView.Adapter<CompetitionU
         updatesViewHolder.descText.setText(updateItem.getUpdateKaDesc());
         updatesViewHolder.serialText.setText(updateItem.getSerialNumber());
 
-        updatesViewHolder.titleText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (updatesViewHolder.descText.getVisibility() == View.GONE){
-                    updatesViewHolder.descText.setVisibility(View.VISIBLE);
-                    updatesViewHolder.knowMoreText.setVisibility(View.VISIBLE);
-                }else{
-                    updatesViewHolder.descText.setVisibility(View.GONE);
-                    updatesViewHolder.knowMoreText.setVisibility(View.GONE);
-                }
+        updatesViewHolder.titleText.setOnClickListener(v -> {
+            if (updatesViewHolder.descText.getVisibility() == View.GONE){
+                updatesViewHolder.descText.setVisibility(View.VISIBLE);
+                updatesViewHolder.knowMoreText.setVisibility(View.VISIBLE);
+            }else{
+                updatesViewHolder.descText.setVisibility(View.GONE);
+                updatesViewHolder.knowMoreText.setVisibility(View.GONE);
             }
         });
 
-        updatesViewHolder.knowMoreText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, PDFActivity.class);
-                intent.putExtra("url", updateItem.getUpdateKaLink());
-                v.getContext().startActivity(intent);
-            }
+        updatesViewHolder.knowMoreText.setOnClickListener(v -> {
+            Intent intent = new Intent(context, PDFActivity.class);
+            intent.putExtra("url", updateItem.getUpdateKaLink());
+            v.getContext().startActivity(intent);
         });
     }
 

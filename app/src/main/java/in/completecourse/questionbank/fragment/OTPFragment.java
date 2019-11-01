@@ -12,6 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.HttpResponse;
 import cz.msebera.android.httpclient.client.HttpClient;
 import cz.msebera.android.httpclient.client.methods.HttpPost;
@@ -20,14 +22,11 @@ import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
 import cz.msebera.android.httpclient.params.HttpConnectionParams;
 import cz.msebera.android.httpclient.util.EntityUtils;
 import in.completecourse.questionbank.R;
-import com.mukesh.OnOtpCompletionListener;
-import com.mukesh.OtpView;
 
+import com.mukesh.OtpView;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.lang.ref.WeakReference;
-import java.util.Objects;
 import in.completecourse.questionbank.MainActivity;
 import in.completecourse.questionbank.app.AppConfig;
 import in.completecourse.questionbank.helper.HelperMethods;
@@ -35,52 +34,48 @@ import in.completecourse.questionbank.helper.PrefManager;
 
 public class OTPFragment extends Fragment {
     private ProgressDialog pDialog;
+    private String email;
+    @BindView(R.id.otp_view)
+    OtpView otpView;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_otp_verify, container, false);
+        View view = inflater.inflate(R.layout.fragment_otp_verify, container, false);
+        ButterKnife.bind(this, view);
+        return view;
     }
 
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
-        OtpView otpView = view.findViewById(R.id.otp_view);
         Bundle bundle = getArguments();
-        //Button submitButton = view.findViewById(R.id.submit_otp_button);
-        final PrefManager prefManager = new PrefManager(Objects.requireNonNull(getActivity()).getApplicationContext());
 
         if (bundle != null) {
             final String otp = bundle.getString("otp");
             final String contact = bundle.getString("contact");
-            final String email = bundle.getString("email");
-            otpView.setOtpCompletionListener(new OnOtpCompletionListener() {
-                @Override
-                public void onOtpCompleted(String s) {
-                    if (s.equals(otp)) {
-                        final String id = HelperMethods.generateChecksum();
-                        final String allow = "1";
-                        JSONObject dataObj = new JSONObject();
-                        try {
-                            dataObj.putOpt("myemail", email);
-                            dataObj.putOpt("mycontact", contact);
-                            dataObj.putOpt("id", id);
-                            dataObj.putOpt("allow", allow);
-                            OTPFragment.JSONTransmitter jsonTransmitter = new OTPFragment.JSONTransmitter(OTPFragment.this);
-                            jsonTransmitter.execute(dataObj);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }else{
-                        Toast.makeText(view.getContext(), "Please enter the correct OTP", Toast.LENGTH_SHORT).show();
+            email = bundle.getString("email");
+            otpView.setOtpCompletionListener(s -> {
+                if (s.equals(otp)) {
+                    final String id = HelperMethods.generateChecksum();
+                    final String allow = "1";
+                    JSONObject dataObj = new JSONObject();
+                    try {
+                        dataObj.putOpt("myemail", email);
+                        dataObj.putOpt("mycontact", contact);
+                        dataObj.putOpt("id", id);
+                        dataObj.putOpt("allow", allow);
+                        JSONTransmitter jsonTransmitter = new JSONTransmitter(OTPFragment.this);
+                        jsonTransmitter.execute(dataObj);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
+
+                }else{
+                    Toast.makeText(view.getContext(), "Please enter the correct OTP", Toast.LENGTH_SHORT).show();
                 }
             });
         }
-
-
     }
-
 
 
     private static class JSONTransmitter extends AsyncTask<JSONObject, JSONObject, JSONObject> {
@@ -120,30 +115,20 @@ public class OTPFragment extends Fragment {
                 String resFromServer = EntityUtils.toString(response.getEntity());
                 jsonResponse = new JSONObject(resFromServer);
 
-                if (!jsonResponse.has("success")){
+                if (jsonResponse.has("success")){
                     //String distributor_id = jsonResponse.getString("distToken");
+                    if (activity.getContext() != null)
                     prefManager =  new PrefManager(activity.getContext().getApplicationContext());
+
                     message = jsonResponse.getString("success");
-                    activity.getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(activity.getContext(), message, Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    if (activity.getActivity() != null) {
+                        activity.getActivity().runOnUiThread(() -> Toast.makeText(activity.getContext(), message, Toast.LENGTH_SHORT).show());
+                    }
+                    String userId = jsonResponse.getString("userid");
                     prefManager.setLogin(true);
+                    prefManager.setUserDetails(userId, activity.email);
                     activity.startActivity(new Intent(activity.getContext(), MainActivity.class));
                     activity.getActivity().finish();
-
-                }else{
-                    final String msg = jsonResponse.getString("error");
-                    if (activity.getActivity() != null) {
-                        activity.getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(activity.getContext(), msg, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
                 }
             } catch (Exception e) { e.printStackTrace();}
 

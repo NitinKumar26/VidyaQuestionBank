@@ -11,8 +11,12 @@ import java.util.ArrayList;
 public class Updates {
 
 
-    @SerializedName("data")
-    private ArrayList<Update> heros;
+// --Commented out by Inspection START (2/11/19 12:17 AM):
+// --Commented out by Inspection START (2/11/19 12:17 AM):
+        @SerializedName("data")
+        private ArrayList<Update> heros;
+// --Commented out by Inspection STOP (2/11/19 12:17 AM)
+// --Commented out by Inspection STOP (2/11/19 12:17 AM)
 
     public Updates(){
 

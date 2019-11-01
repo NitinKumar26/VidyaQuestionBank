@@ -37,9 +37,11 @@ public class BookNewArrival {
         return code;
     }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
+// --Commented out by Inspection START (2/11/19 12:17 AM):
+//    public void setCode(String code) {
+//        this.code = code;
+//    }
+// --Commented out by Inspection STOP (2/11/19 12:17 AM)
 
     public void setUrl(String url) {
         this.url = url;

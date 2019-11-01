@@ -11,19 +11,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import in.completecourse.questionbank.R;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import in.completecourse.questionbank.PDFActivity;
+import in.completecourse.questionbank.R;
 import in.completecourse.questionbank.adapter.NewArrivalAdapter;
 import in.completecourse.questionbank.app.AppConfig;
 import in.completecourse.questionbank.helper.HttpHandler;
@@ -34,25 +40,20 @@ public class NewArrivalFragment extends Fragment {
 
     private List<BookNewArrival> itemsList;
     private NewArrivalAdapter mAdapter;
-    private ProgressBar progressBar;
-    private RecyclerView recyclerView;
 
-    public NewArrivalFragment() {
-
-    }
+    @BindView(R.id.recycler_view)
+    RecyclerView recyclerView;
+    @BindView(R.id.progressbar_fragment_store)
+    ProgressBar progressBar;
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_new_arrival, container, false);
-
-        recyclerView = view.findViewById(R.id.recycler_view);
-        progressBar = view.findViewById(R.id.progressbar_fragment_store);
+        ButterKnife.bind(this, view);
         itemsList = new ArrayList<>();
         mAdapter = new NewArrivalAdapter(view.getContext(), itemsList);
 
-        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(container.getContext(), 3);
+        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(container.getContext(), 3, RecyclerView.VERTICAL, false);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
@@ -67,6 +68,8 @@ public class NewArrivalFragment extends Fragment {
 
         return view;
     }
+
+
     /**
      * Checks if there is Internet accessible.
      * @return True if there is Internet. False if not.
@@ -84,7 +87,6 @@ public class NewArrivalFragment extends Fragment {
 
 
     private static class GetLatestBooks extends AsyncTask<Void, Void, Void> {
-        private String url;
         BookNewArrival bookNewArrival;
         private final WeakReference<NewArrivalFragment> activityWeakReference;
 
@@ -96,7 +98,7 @@ public class NewArrivalFragment extends Fragment {
         protected Void doInBackground(Void... arg0) {
             NewArrivalFragment newArrivalFragment = activityWeakReference.get();
             HttpHandler sh = new HttpHandler();
-            url = AppConfig.URL_LATEST_BOOKS;
+            String url = AppConfig.URL_LATEST_BOOKS;
             // Making a request to url and getting response
             String jsonStr = sh.makeServiceCall(url);
             //Log.e("Company Activity ",  "Response from url: " + jsonStr);
@@ -107,19 +109,17 @@ public class NewArrivalFragment extends Fragment {
                     for (int i = 0; i < jsonArray.length(); i++) {
                         bookNewArrival = new BookNewArrival();
                         JSONObject c = jsonArray.getJSONObject(i);
-                        //bookNewArrival.setCode(c.getString("arrivalkanaam"));
+                        //bookNewArrival.setCode(c.getString("arrivalkacode"));
                         bookNewArrival.setTitle(c.getString("arrivalkanaam"));
                         bookNewArrival.setRate(c.getString("arrivalkarate"));
                         bookNewArrival.setUrl(c.getString("arrivalkaimageurl"));
                         bookNewArrival.setSiteUrl(c.getString("arrivalkasiteurl"));
                         newArrivalFragment.itemsList.add(bookNewArrival);
-                    }
+                     }
                 } catch (final JSONException e) {
 
                     Toast.makeText(newArrivalFragment.getActivity(), "Json parsing error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 }
-            } else {
-                Toast.makeText(newArrivalFragment.getActivity(), "Couldn't get data from server.", Toast.LENGTH_SHORT).show();
             }
             return null;
         }
@@ -131,14 +131,11 @@ public class NewArrivalFragment extends Fragment {
             newArrivalFragment.mAdapter.notifyDataSetChanged();
             newArrivalFragment.progressBar.setVisibility(View.INVISIBLE);
 
-            newArrivalFragment.recyclerView.addOnItemTouchListener(new NewArrivalAdapter.RecyclerTouchListener(newArrivalFragment.getContext(), new NewArrivalAdapter.ClickListener() {
-                @Override
-                public void onClick(int position) {
-                    String url = newArrivalFragment.itemsList.get(position).getSiteUrl();
-                    Intent intent = new Intent(newArrivalFragment.getActivity(), PDFActivity.class);
-                    intent.putExtra("url", url);
-                    newArrivalFragment.startActivity(intent);
-                }
+            newArrivalFragment.recyclerView.addOnItemTouchListener(new NewArrivalAdapter.RecyclerTouchListener(newArrivalFragment.getContext(), position -> {
+                String url = newArrivalFragment.itemsList.get(position).getSiteUrl();
+                Intent intent = new Intent(newArrivalFragment.getActivity(), PDFActivity.class);
+                intent.putExtra("url", url);
+                newArrivalFragment.startActivity(intent);
             }));
 
         }

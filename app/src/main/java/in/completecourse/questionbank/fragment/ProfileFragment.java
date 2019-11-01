@@ -9,15 +9,21 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.lang.ref.WeakReference;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import cz.msebera.android.httpclient.HttpResponse;
 import cz.msebera.android.httpclient.client.HttpClient;
 import cz.msebera.android.httpclient.client.methods.HttpPost;
@@ -32,29 +38,36 @@ import in.completecourse.questionbank.helper.PrefManager;
 
 public class ProfileFragment extends Fragment {
 
+    @BindView(R.id.name)
+    TextView name;
+    @BindView(R.id.email)
+    TextView email;
+    @BindView(R.id.mobile)
+    TextView mobileNumber;
+    @BindView(R.id.tvClass)
+    TextView tvClass;
+    @BindView(R.id.school)
+    TextView school;
+    @BindView(R.id.city)
+    TextView city;
+    @BindView(R.id.type)
+    TextView type;
     private ProgressDialog pDialog;
-    private TextView name, email, mobileNumber, tvClass, school, city, type;
+    private PrefManager mPrefManager;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_profile, container, false);
+        View view = inflater.inflate(R.layout.fragment_profile, container, false);
+        ButterKnife.bind(this, view);
+        return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        name = view.findViewById(R.id.name);
-        email = view.findViewById(R.id.email);
-        mobileNumber = view.findViewById(R.id.mobile);
-        tvClass = view.findViewById(R.id.tvClass);
-        school = view.findViewById(R.id.school);
-        city = view.findViewById(R.id.city);
-        type = view.findViewById(R.id.type);
-
-        PrefManager mPrefManager = new PrefManager(view.getContext().getApplicationContext());
-        Button btnLogout = view.findViewById(R.id.btn_logout);
+        mPrefManager = new PrefManager(view.getContext().getApplicationContext());
 
         if (isNetworkAvailable()) {
 
@@ -73,15 +86,11 @@ public class ProfileFragment extends Fragment {
         }else{
             Toast.makeText(view.getContext(), "Please check your internet connection", Toast.LENGTH_SHORT).show();
         }
+    }
 
-        btnLogout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                mPrefManager.logoutUser();
-
-            }
-        });
+    @OnClick(R.id.btn_logout)
+    void logout(){
+        mPrefManager.logoutUser();
     }
 
 
@@ -136,8 +145,6 @@ public class ProfileFragment extends Fragment {
                 response = client.execute(post);
                 String resFromServer = EntityUtils.toString(response.getEntity());
                 jsonResponse = new JSONObject(resFromServer);
-
-                if (!jsonResponse.has("success")){
                     //String distributor_id = jsonResponse.getString("distToken");
                     String username = jsonResponse.getString("username");
                     String uemail = jsonResponse.getString("uemail");
@@ -147,30 +154,16 @@ public class ProfileFragment extends Fragment {
                     String ucity = jsonResponse.getString("ucity");
                     String utype = jsonResponse.getString("utype");
                     if (activity.getActivity() != null){
-                        activity.getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                activity.name.setText(username);
-                                activity.email.setText(uemail);
-                                activity.mobileNumber.setText(umobile);
-                                activity.tvClass.setText(uclass);
-                                activity.school.setText(uschool);
-                                activity.city.setText(ucity);
-                                activity.type.setText(utype);
-                            }
+                        activity.getActivity().runOnUiThread(() -> {
+                            activity.name.setText(username);
+                            activity.email.setText(uemail);
+                            activity.mobileNumber.setText(umobile);
+                            activity.tvClass.setText(uclass);
+                            activity.school.setText(uschool);
+                            activity.city.setText(ucity);
+                            activity.type.setText(utype);
                         });
                     }
-                }else{
-                    final String msg = jsonResponse.getString("error");
-                    if (activity.getActivity() != null) {
-                        activity.getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(activity.getContext(), msg, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-                }
             } catch (Exception e) { e.printStackTrace();}
 
             return null;

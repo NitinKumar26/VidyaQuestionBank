@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android ="http://schemas.android.com/apk/res/android"
@@ -49,6 +50,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:passwordToggleEnabled="true"
+            app:passwordToggleTint="@color/colorPrimary"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -64,17 +66,27 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+
+        <TextView
+            android:id="@+id/tv_reset_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Reset Password" />
+
         <Button
             android:id="@+id/send_verification_code_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="12dp"
             android:text="@string/login"
             android:textColor="#ffffff"
             android:fontFamily="@font/raleway_medium"
             android:textSize="20sp"
             android:background="@drawable/button_gradient"/>
+
     </LinearLayout>
+
 
     <TextView
         android:id="@+id/already_text"
@@ -84,7 +96,7 @@
         android:layout_below="@id/linear"
         android:text="Not have an account yet?"
         android:layout_marginStart="20dp"
-        android:textColor="@color/colorAccent"
+        android:textColor="@color/color1"
         android:textStyle="bold" />
 
     <TextView

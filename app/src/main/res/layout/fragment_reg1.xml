@@ -3,7 +3,7 @@
     xmlns:android ="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="28dp">
+    android:layout_marginBottom="12dp">
 
     <TextView
         android:id="@+id/signup_text"
@@ -65,7 +65,6 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -84,6 +83,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:passwordToggleEnabled="true"
+            app:passwordToggleTint="@color/colorPrimary"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -103,11 +103,11 @@
             android:id="@+id/btn_signup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="12dp"
             android:text="Signup Now"
             android:textColor="#ffffff"
             android:fontFamily="@font/raleway_medium"
-            android:textSize="20sp"
+            android:textSize="16sp"
             android:background="@drawable/button_gradient"/>
 
     </LinearLayout>
@@ -120,7 +120,7 @@
         android:layout_below="@id/linear"
         android:text="Already have an account?"
         android:layout_marginStart="20dp"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/color1"
         android:textStyle="bold" />
 
     <TextView
@@ -132,7 +132,7 @@
         android:layout_marginStart="12dp"
         android:layout_below="@id/linear"
         android:text="Login"
-        android:textColor="@color/colorAccent"
+        android:textColor="@color/colorPrimary"
         android:textStyle="bold" />
 
 </RelativeLayout>

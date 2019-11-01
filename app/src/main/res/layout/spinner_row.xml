@@ -3,14 +3,26 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
     <TextView
         android:id="@+id/offer_type_txt"
         android:padding="8dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:text="TextView"
+        android:fontFamily="@font/raleway" />
+
+    <TextView
+        android:id="@+id/tvclass"
+        android:padding="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Class"
         android:fontFamily="@font/raleway"
         android:drawableEnd="@drawable/ic_arrow_down"
-        android:drawablePadding="8dp"/>
+        android:maxLines="1"
+        android:drawablePadding="8dp" />
+
 </LinearLayout>

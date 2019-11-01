@@ -1,101 +1,78 @@
 package in.completecourse.questionbank;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.view.MenuItem;
 import android.widget.TextView;
-
-import androidx.appcompat.app.ActionBar;
+import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-
-import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.behavior.HideBottomViewOnScrollBehavior;
-import com.google.firebase.analytics.FirebaseAnalytics;
-
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import in.completecourse.questionbank.fragment.HomeFragment;
 import in.completecourse.questionbank.fragment.NewArrivalFragment;
-import in.completecourse.questionbank.fragment.NotificationFragment;
 import in.completecourse.questionbank.fragment.ProfileFragment;
-import me.nitin.lib.NiceBottomBar;
+import in.completecourse.questionbank.helper.HelperMethods;
 
 
 public class MainActivity extends AppCompatActivity {
-    Toolbar toolbar;
-    AppBarLayout appBarLayout;
-    TextView titleText;
+    // --Commented out by Inspection (2/11/19 12:17 AM):private TextView titleText;
+    private boolean doubleBackToExitPressedOnce = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
-        //HelperMethods.changeStatusBarColor(MainActivity.this);
-
-        toolbar = findViewById(R.id.toolbar_main);
-        titleText = findViewById(R.id.toolbar_title);
-        setSupportActionBar(toolbar);
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar!=null){
-            actionBar.setTitle(null);
-        }
-
-        //Obtain the FirebaseAnalytics instance
-        FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
-        appBarLayout = findViewById(R.id.appBAr);
-        //appBarLayout.setVisibility(View.INVISIBLE);
-        //toolbar.setVisibility(View.GONE);
-
-        NiceBottomBar navigation = findViewById(R.id.navigation);
-        //navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        //titleText = findViewById(R.id.toolbar_title);
+        BottomNavigationView navigation = findViewById(R.id.navigation);
+        navigation.setItemIconTintList(null);
         CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) navigation.getLayoutParams();
         layoutParams.setBehavior(new HideBottomViewOnScrollBehavior());
-        navigation.setActiveItem(1);
-        loadFragment(new HomeFragment());
-
-        navigation.setBottomBarCallback(new NiceBottomBar.BottomBarCallback() {
-            @Override
-            public void onItemSelect(int i) {
-                switch (i){
-                    case 0:
-                        loadFragment(new NewArrivalFragment());
-                        titleText.setText("New Arrivals");
-                        break;
-                    case 1:
-                        loadFragment(new HomeFragment());
-                        titleText.setText("Home");
-                        break;
-                    case 2:
-                        loadFragment(new NotificationFragment());
-                        titleText.setText("Notifications");
-                        break;
-                    case 3:
-                        loadFragment(new ProfileFragment());
-                        titleText.setText("Profile");
-                        break;
-                }
-            }
-
-            @Override
-            public void onItemReselect(int i) {
-
-            }
-        });
+        navigation.setOnNavigationItemSelectedListener(listener);
+        HelperMethods.loadFragment(new HomeFragment(), MainActivity.this, R.id.frame_container, false, "home");
+        //titleText.setText(R.string.home);
     }
 
+    final BottomNavigationView.OnNavigationItemSelectedListener listener = new BottomNavigationView.OnNavigationItemSelectedListener() {
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()){
+                case R.id.navigation_home:
+                    HelperMethods.loadFragment(new HomeFragment(), MainActivity.this, R.id.frame_container, false, "home");
+                    //titleText.setText(R.string.home);
+                    return true;
+                case R.id.navigation_new_arrival:
+                    HelperMethods.loadFragment(new NewArrivalFragment(), MainActivity.this, R.id.frame_container, false, "new_arrivals");
+                    //titleText.setText(R.string.new_arrivals);
+                    return true;
+                case R.id.navigation_profile:
+                    HelperMethods.loadFragment(new ProfileFragment(), MainActivity.this, R.id.frame_container, false, "profile");
+                    //titleText.setText(R.string.profile);
+                    return true;
+            }
+            return false;
+        }
+    };
 
-    /**
-     * loading fragment into FrameLayout
-     *
-     * @param fragment
-     */
-    @SuppressWarnings("JavaDoc")
-    private void loadFragment(Fragment fragment) {
-        // load fragment
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.frame_container, fragment);
-        //transaction.addToBackStack(null);
-        transaction.commit();
+
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            return;
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 2000);
     }
+
 }

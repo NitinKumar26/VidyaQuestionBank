@@ -12,7 +12,7 @@ public class Update {
     private final String name;
 
     @SerializedName("updatekaimageurl")
-    private String url;
+    private final String url;
 
     public Update(String name, String url) {
         this.name = name;

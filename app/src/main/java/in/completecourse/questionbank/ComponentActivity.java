@@ -3,10 +3,10 @@ package in.completecourse.questionbank;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -14,22 +14,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import in.completecourse.questionbank.fragment.ClassDetailsFragment;
 import in.completecourse.questionbank.fragment.ComponentDetailsFragment;
 import in.completecourse.questionbank.utils.ListConfig;
 
 public class ComponentActivity extends AppCompatActivity implements View.OnClickListener {
-    public static final int count = 4;
     public static Intent intent;
     private ImageView competitionUpdatesImage;
-    //public static Spinner classSpinner;
+    public static Spinner classSpinner;
+
     public static String subjectString, classString, activityName, activityId;
     int cardBackground;
 
     /**
-     * You shouldn't define first page = 0
+     *You shouldn't define first page = 0
      * Let's define first page = 'viewpager size' to make endless carousel
-     */
+    **/
+
     public static int FIRST_PAGE = 4;
 
 
@@ -43,66 +43,64 @@ public class ComponentActivity extends AppCompatActivity implements View.OnClick
         TextView componentDetails = findViewById(R.id.component_details);
         LinearLayout linearLayout = findViewById(R.id.linear2);
 
-        ImageView competitionUpdates = findViewById(R.id.ic_competition_updates);
-        competitionUpdates.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(ComponentActivity.this, CompetitionUpdatesActivity.class));
-
-            }
-        });
+        findViewById(R.id.ic_competition_updates).setOnClickListener(this);
+        findViewById(R.id.imgBack).setOnClickListener(this);
 
         intent = getIntent();
         subjectString = getIntent().getStringExtra("subjectkiid");
         classString = getIntent().getStringExtra("uclass");
         activityId = getIntent().getStringExtra("activitykiid");
         activityName = getIntent().getStringExtra("activityname");
-        cardBackground = getIntent().getIntExtra("cardColor", -1);
+        cardBackground = getIntent().getIntExtra("cardColorPosition", -1);
 
 
-        if (classString.equalsIgnoreCase("4") && subjectString.equalsIgnoreCase("1")
-                || classString.equalsIgnoreCase("1") && subjectString.equalsIgnoreCase("2")
-                || classString.equalsIgnoreCase("4") && subjectString.equalsIgnoreCase("16")
-                || classString.equalsIgnoreCase("1") && subjectString.equalsIgnoreCase("13")){
+        //Set subject image
+        if (classString.equalsIgnoreCase("1") && subjectString.equalsIgnoreCase("2")
+                || classString.equalsIgnoreCase("1") && subjectString.equalsIgnoreCase("13"))
             subjectImage.setImageResource(ListConfig.imagesHighSchool[0]);
-        }else if (classString.equalsIgnoreCase("4") && subjectString.equalsIgnoreCase("15")
-                || classString.equalsIgnoreCase("4") && subjectString.equalsIgnoreCase("4")
-                || classString.equalsIgnoreCase("1") && subjectString.equalsIgnoreCase("3")
-                || classString.equalsIgnoreCase("1") && subjectString.equalsIgnoreCase("14")){
-            subjectImage.setImageResource(ListConfig.imagesHighSchool[2]);
-        }else if (classString.equalsIgnoreCase("2") && subjectString.equalsIgnoreCase("5")
-                || classString.equalsIgnoreCase("3") && subjectString.equalsIgnoreCase("6")){
-            subjectImage.setImageResource(ListConfig.imagesIntermediate[2]);
-        }else if (classString.equalsIgnoreCase("2") && subjectString.equalsIgnoreCase("7")
-                || classString.equalsIgnoreCase("3") && subjectString.equalsIgnoreCase("8")){
-            subjectImage.setImageResource(ListConfig.imagesIntermediate[0]);
-        }else if (classString.equalsIgnoreCase("2") && subjectString.equalsIgnoreCase("9")
-                || classString.equalsIgnoreCase("3") && subjectString.equalsIgnoreCase("10")){
-            subjectImage.setImageResource(ListConfig.imagesIntermediate[1]);
-        }else if (classString.equalsIgnoreCase("2") && subjectString.equalsIgnoreCase("11")
-                || classString.equalsIgnoreCase("3") && subjectString.equalsIgnoreCase("12")){
-            subjectImage.setImageResource(ListConfig.imagesIntermediate[3]);
-        }
+        else if (classString.equalsIgnoreCase("1") && subjectString.equalsIgnoreCase("3")
+                || classString.equalsIgnoreCase("1") && subjectString.equalsIgnoreCase("14"))
+            subjectImage.setImageResource(ListConfig.imagesHighSchool[1]);
 
-        if (classString.equalsIgnoreCase("4") && subjectString.equalsIgnoreCase("1")
-                || classString.equalsIgnoreCase("1") && subjectString.equalsIgnoreCase("2")){
-            subjectName.setText(ListConfig.subjectHighSchool[0]);
-        }else if (classString.equalsIgnoreCase("4") && subjectString.equalsIgnoreCase("16")
-                || classString.equalsIgnoreCase("1") && subjectString.equalsIgnoreCase("13")){
-            subjectName.setText(ListConfig.subjectHighSchool[1]);
-        }else if (classString.equalsIgnoreCase("4") && subjectString.equalsIgnoreCase("4")
-                || classString.equalsIgnoreCase("1") && subjectString.equalsIgnoreCase("3")){
-            subjectName.setText(ListConfig.subjectHighSchool[2]);
-        }else if (classString.equalsIgnoreCase("4") && subjectString.equalsIgnoreCase("15")
-                || classString.equalsIgnoreCase("1") && subjectString.equalsIgnoreCase("14")){
-            subjectName.setText(ListConfig.subjectHighSchool[3]);
-        }else if (classString.equalsIgnoreCase("3") && subjectString.equalsIgnoreCase("6")
-                || classString.equalsIgnoreCase("2") && subjectString.equalsIgnoreCase("5")){
-            subjectName.setText(ListConfig.subjectIntermediate[2]);
-        }else if (classString.equalsIgnoreCase("3") && subjectString.equalsIgnoreCase("8")
-                || classString.equalsIgnoreCase("2") && subjectString.equalsIgnoreCase("7")){
+        else if (classString.equalsIgnoreCase("3") && subjectString.equalsIgnoreCase("8")
+                || classString.equalsIgnoreCase("3") && subjectString.equalsIgnoreCase("17"))
+            subjectImage.setImageResource(ListConfig.imagesIntermediate[0]);
+        else if (classString.equalsIgnoreCase("3") && subjectString.equalsIgnoreCase("10")
+                || classString.equalsIgnoreCase("3") && subjectString.equalsIgnoreCase("18"))
+            subjectImage.setImageResource(ListConfig.imagesIntermediate[1]);
+        else if (classString.equalsIgnoreCase("3") && subjectString.equalsIgnoreCase("6")
+                || classString.equalsIgnoreCase("3") && subjectString.equalsIgnoreCase("19"))
+            subjectImage.setImageResource(ListConfig.imagesIntermediate[2]);
+        else if (classString.equalsIgnoreCase("3") && subjectString.equalsIgnoreCase("12")
+                || classString.equalsIgnoreCase("3") && subjectString.equalsIgnoreCase("20"))
             subjectImage.setImageResource(ListConfig.imagesIntermediate[3]);
-        }
+
+
+        //Set Subject Name
+        if (classString.equalsIgnoreCase("1") && subjectString.equalsIgnoreCase("2"))
+            subjectName.setText(ListConfig.subjectHighSchool[0]);
+        else if(classString.equalsIgnoreCase("1") && subjectString.equalsIgnoreCase("3"))
+            subjectName.setText(ListConfig.subjectHighSchool[1]);
+        else if(classString.equalsIgnoreCase("1") && subjectString.equalsIgnoreCase("13"))
+            subjectName.setText(ListConfig.subjectHighSchool[2]);
+        else if(classString.equalsIgnoreCase("1") && subjectString.equalsIgnoreCase("14"))
+            subjectName.setText(ListConfig.subjectHighSchool[3]);
+        else if(classString.equalsIgnoreCase("3") && subjectString.equalsIgnoreCase("8"))
+            subjectName.setText(ListConfig.subjectIntermediateHindi[0]);
+        else if(classString.equalsIgnoreCase("3") && subjectString.equalsIgnoreCase("10"))
+            subjectName.setText(ListConfig.subjectIntermediateHindi[1]);
+        else if(classString.equalsIgnoreCase("3") && subjectString.equalsIgnoreCase("6"))
+            subjectName.setText(ListConfig.subjectIntermediateHindi[2]);
+        else if(classString.equalsIgnoreCase("3") && subjectString.equalsIgnoreCase("12"))
+            subjectName.setText(ListConfig.subjectIntermediateHindi[3]);
+        else if(classString.equalsIgnoreCase("3") && subjectString.equalsIgnoreCase("17"))
+            subjectName.setText(ListConfig.subjectIntermediateEnglsih[0]);
+        else if(classString.equalsIgnoreCase("3") && subjectString.equalsIgnoreCase("18"))
+            subjectName.setText(ListConfig.subjectIntermediateEnglsih[1]);
+        else if(classString.equalsIgnoreCase("3") && subjectString.equalsIgnoreCase("19"))
+            subjectName.setText(ListConfig.subjectIntermediateEnglsih[2]);
+        else if(classString.equalsIgnoreCase("3") && subjectString.equalsIgnoreCase("20"))
+            subjectName.setText(ListConfig.subjectIntermediateEnglsih[3]);
 
         if (classString.equalsIgnoreCase("1"))
             classDetails.setText(getString(R.string.class_details, "10th"));
@@ -114,7 +112,39 @@ public class ComponentActivity extends AppCompatActivity implements View.OnClick
             classDetails.setText(getString(R.string.class_details, "9th"));
 
         componentDetails.setText(activityName);
-        linearLayout.setBackgroundColor(cardBackground);
+
+        switch (cardBackground%10){
+            case 0:
+                linearLayout.setBackgroundColor(ComponentActivity.this.getResources().getColor(R.color.color1));
+                break;
+            case 1:
+                linearLayout.setBackgroundColor(ComponentActivity.this.getResources().getColor(R.color.color2));
+                break;
+            case 2:
+                linearLayout.setBackgroundColor(ComponentActivity.this.getResources().getColor(R.color.color3));
+                break;
+            case 3:
+                linearLayout.setBackgroundColor(ComponentActivity.this.getResources().getColor(R.color.color4));
+                break;
+            case 4:
+                linearLayout.setBackgroundColor(ComponentActivity.this.getResources().getColor(R.color.color5));
+                break;
+            case 5:
+                linearLayout.setBackgroundColor(ComponentActivity.this.getResources().getColor(R.color.color6));
+                break;
+            case 6:
+                linearLayout.setBackgroundColor(ComponentActivity.this.getResources().getColor(R.color.color7));
+                break;
+            case 7:
+                linearLayout.setBackgroundColor(ComponentActivity.this.getResources().getColor(R.color.color8));
+                break;
+            case 8:
+                linearLayout.setBackgroundColor(ComponentActivity.this.getResources().getColor(R.color.color9));
+                break;
+            case 9:
+                linearLayout.setBackgroundColor(ComponentActivity.this.getResources().getColor(R.color.color10));
+                break;
+        }
 
         loadFragment(new ComponentDetailsFragment());
 
