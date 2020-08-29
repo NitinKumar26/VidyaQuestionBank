@@ -73,7 +73,7 @@ public class RegistrationFragment1 extends Fragment{
         // load fragment
         if (getActivity() != null) {
             FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.frameLayoutSignup, fragment);
+            transaction.replace(R.id.frame_container, fragment);
             transaction.addToBackStack(null);
             transaction.commit();
         }

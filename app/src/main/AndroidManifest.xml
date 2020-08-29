@@ -89,6 +89,12 @@
         <activity android:name=".NotificationActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
 
+        <activity android:name=".EditProfileActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity android:name=".MoreAppsActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
     </application>
 
 </manifest>

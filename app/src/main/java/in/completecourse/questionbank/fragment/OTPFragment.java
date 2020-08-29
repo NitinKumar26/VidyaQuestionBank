@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,18 +24,40 @@ import cz.msebera.android.httpclient.params.HttpConnectionParams;
 import cz.msebera.android.httpclient.util.EntityUtils;
 import in.completecourse.questionbank.R;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskExecutors;
+import com.google.firebase.FirebaseException;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.mukesh.OtpView;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import in.completecourse.questionbank.MainActivity;
 import in.completecourse.questionbank.app.AppConfig;
 import in.completecourse.questionbank.helper.HelperMethods;
 import in.completecourse.questionbank.helper.PrefManager;
 
 public class OTPFragment extends Fragment {
-    private ProgressDialog pDialog;
-    private String email;
+    private FirebaseAuth mAuth;
+    private String verificationId;
+    @BindView(R.id.progressBar)
+    ProgressBar progressBar;
+    private String username;
+    private FirebaseFirestore db;
+    private String number;
+
     @BindView(R.id.otp_view)
     OtpView otpView;
 
@@ -48,99 +71,116 @@ public class OTPFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
+        db = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
         Bundle bundle = getArguments();
-
         if (bundle != null) {
-            final String otp = bundle.getString("otp");
-            final String contact = bundle.getString("contact");
-            email = bundle.getString("email");
-            otpView.setOtpCompletionListener(s -> {
-                if (s.equals(otp)) {
-                    final String id = HelperMethods.generateChecksum();
-                    final String allow = "1";
-                    JSONObject dataObj = new JSONObject();
-                    try {
-                        dataObj.putOpt("myemail", email);
-                        dataObj.putOpt("mycontact", contact);
-                        dataObj.putOpt("id", id);
-                        dataObj.putOpt("allow", allow);
-                        JSONTransmitter jsonTransmitter = new JSONTransmitter(OTPFragment.this);
-                        jsonTransmitter.execute(dataObj);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                }else{
-                    Toast.makeText(view.getContext(), "Please enter the correct OTP", Toast.LENGTH_SHORT).show();
-                }
-            });
+            username = bundle.getString("username");
+            number = bundle.getString("mobileNumber");
+            sendVerificationCode("+91" + number); //send OTP on phoneNumber
         }
     }
 
+    private void sendVerificationCode(String number){
+        //show Progress Bar
+        progressBar.setVisibility(View.VISIBLE);
+        //[START start_phone_auth]
+        PhoneAuthProvider.getInstance().verifyPhoneNumber(
+                number,
+                60,
+                TimeUnit.SECONDS,
+                TaskExecutors.MAIN_THREAD,
+                mCallBack
+        );
+    }
 
-    private static class JSONTransmitter extends AsyncTask<JSONObject, JSONObject, JSONObject> {
-        private final WeakReference<OTPFragment> activityWeakReference;
-        String message;
-        PrefManager prefManager;
-
-        JSONTransmitter(OTPFragment context){
-            activityWeakReference = new WeakReference<>(context);
+    private final PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallBack = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+        @Override
+        public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+            super.onCodeSent(s, forceResendingToken);
+            //The SMS verification code has been sent to the provided phone number, we
+            //now need to ask the user to enter the code and then construct a credential
+            //by combining the code with a verification ID
+            verificationId = s;
         }
 
         @Override
-        protected void onPreExecute() {
-            OTPFragment activity = activityWeakReference.get();
-            activity.pDialog = new ProgressDialog(activity.getContext());
-            activity.pDialog.setMessage("Please wait...");
-            activity.pDialog.setCancelable(false);
-            activity.pDialog.show();
-        }
-
-        @Override
-        protected JSONObject doInBackground(JSONObject... data) {
-            final OTPFragment activity = activityWeakReference.get();
-            JSONObject json = data[0];
-            HttpClient client = new DefaultHttpClient();
-            HttpConnectionParams.setConnectionTimeout(client.getParams(), 100000);
-            JSONObject jsonResponse;
-            String SIGNUP_URL = AppConfig.URL_USER_SUCCESS;
-            HttpPost post = new HttpPost(SIGNUP_URL);
-            try {
-                StringEntity se = new StringEntity( json.toString());
-                post.addHeader("content-type", "application/json");
-                post.addHeader("accept", "application/json");
-                post.setEntity(se);
-                HttpResponse response;
-                response = client.execute(post);
-                String resFromServer = EntityUtils.toString(response.getEntity());
-                jsonResponse = new JSONObject(resFromServer);
-
-                if (jsonResponse.has("success")){
-                    //String distributor_id = jsonResponse.getString("distToken");
-                    if (activity.getContext() != null)
-                    prefManager =  new PrefManager(activity.getContext().getApplicationContext());
-
-                    message = jsonResponse.getString("success");
-                    if (activity.getActivity() != null) {
-                        activity.getActivity().runOnUiThread(() -> Toast.makeText(activity.getContext(), message, Toast.LENGTH_SHORT).show());
-                    }
-                    String userId = jsonResponse.getString("userid");
-                    prefManager.setLogin(true);
-                    prefManager.setUserDetails(userId, activity.email);
-                    activity.startActivity(new Intent(activity.getContext(), MainActivity.class));
-                    activity.getActivity().finish();
-                }
-            } catch (Exception e) { e.printStackTrace();}
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(JSONObject jsonObject) {
-            OTPFragment activity = activityWeakReference.get();
-            if (activity.pDialog.isShowing()) {
-                activity.pDialog.dismiss();
+        public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
+            //This callback will be invoked in two situations
+            // 1 - Instant verification:
+            // In some cases the phone number can be instantly verified
+            // without needing to send or enter a verification code.
+            // 2 - Auto-retrieval:
+            // On some devices Google Play Services can automatically detect
+            // the incoming verification SMS and perform verification without user action.
+            String code = phoneAuthCredential.getSmsCode();
+            if (code != null){
+                progressBar.setVisibility(View.GONE);
+                otpView.setText(code);
+                verifyCode(code);
             }
+
         }
+
+        @Override
+        public void onVerificationFailed(@NonNull FirebaseException e) {
+            //This callback is invoked if an invalid request for verification is made,
+            //for instance if the phone number format is not valid
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    };
+
+    private void verifyCode(String code){
+        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
+        signInWithCredential(credential);
+    }
+
+    private void signInWithCredential(PhoneAuthCredential phoneAuthCredential){
+        mAuth.signInWithCredential(phoneAuthCredential)
+                .addOnCompleteListener(task -> progressBar.setVisibility(View.GONE))
+                .addOnSuccessListener(authResult -> {
+                    if (getContext() != null){
+                        if (authResult.getUser() != null){
+                            progressBar.setVisibility(View.VISIBLE);
+                            db.collection("qb_users").document(authResult.getUser().getUid())
+                                    .get()
+                                    .addOnCompleteListener(task -> progressBar.setVisibility(View.GONE))
+                                    .addOnSuccessListener(documentSnapshot -> {
+                                if (documentSnapshot.exists()){
+                                    //User details already exists
+                                    if (getContext() != null){
+                                        PrefManager prefManager = new PrefManager(getContext());
+                                        prefManager.setFirstTimeLaunch(false);
+                                        prefManager.setLogin(true);
+                                        Intent intent = new Intent(getContext(), MainActivity.class);
+                                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                        startActivity(intent);
+                                    }
+                                }else{
+                                    //User details are not in the database save them
+                                    Map<String, String> userDetails = new HashMap<>();
+                                    userDetails.put("name", username);
+                                    userDetails.put("phone", number);
+                                    if (authResult.getUser() != null)
+                                        userDetails.put("userid", authResult.getUser().getUid());
+                                    db.collection("qb_users")
+                                            .document(authResult.getUser().getUid())
+                                            .set(userDetails)
+                                            .addOnCompleteListener(task -> progressBar.setVisibility(View.GONE))
+                                            .addOnSuccessListener(aVoid -> {
+                                                if (getContext() != null){
+                                                    PrefManager prefManager = new PrefManager(getContext());
+                                                    prefManager.setFirstTimeLaunch(false);
+                                                    prefManager.setLogin(true);
+                                                    Intent intent = new Intent(getContext(), MainActivity.class);
+                                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                    startActivity(intent);
+                                                }
+                                            }).addOnFailureListener(e -> Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show());
+                                }
+                            }).addOnFailureListener(e -> Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show());
+                        }
+                    }
+        }).addOnFailureListener(e -> Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show());
     }
 }

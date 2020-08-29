@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,14 +18,18 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdLoader;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -38,6 +43,7 @@ import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -57,7 +63,7 @@ import in.completecourse.questionbank.helper.HelperMethods;
 import in.completecourse.questionbank.model.Component;
 
 public class ComponentDetailsFragment extends Fragment{
-    private ArrayList<Component> activityItemArrayList;
+    //private ArrayList<Component> activityItemArrayList;
     private ProgressDialog pDialog;
     private ComponentAdapter adapter;
     @BindView(R.id.recyclerView)
@@ -74,8 +80,17 @@ public class ComponentDetailsFragment extends Fragment{
     private TextView mInhouseAppName, mInHouseRating;
     private Button mInHouseInstallButton;
 
+    //The AdLoader used to load ads
+    private AdLoader adLoader;
+
+    //List of quizItems and native ads that populate the RecyclerView;
+    private List<Object> mRecyclerViewItems = new ArrayList<>();
+    //List of nativeAds that have been successfully loaded.
+    private List<UnifiedNativeAd> mNativeAds = new ArrayList<>();
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.e("name", "ComponentDetailsFragment");
         View view = inflater.inflate(R.layout.fragment_class_details, container, false);
         ButterKnife.bind(this, view);
         return view;
@@ -99,23 +114,27 @@ public class ComponentDetailsFragment extends Fragment{
             mInterstitialAd = new InterstitialAd(getContext());
             mInterstitialAd.setAdUnitId(getContext().getString(R.string.interstitial_ad_id));
         }
-        //mInterstitialAd.loadAd(new AdRequest.Builder().build());
 
         setAds();
 
-        activityItemArrayList = new ArrayList<>();
-        recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 3, RecyclerView.VERTICAL, false));
+        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext(), RecyclerView.VERTICAL, false));
+        recyclerView.addItemDecoration(new DividerItemDecoration(view.getContext(), RecyclerView.VERTICAL));
+
+        //recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 3, RecyclerView.VERTICAL, false));
         recyclerView.addOnItemTouchListener(new HelperMethods.RecyclerTouchListener(view.getContext(), position -> {
-            if (mInterstitialAd.isLoaded())
-                mInterstitialAd.show(); //Show Interstitial Ad;
-            Intent intent = new Intent(view.getContext(), PDFActivity.class);
-            intent.putExtra("url", activityItemArrayList.get(position).getmComponentURL());
-            startActivity(intent);
+            if (adapter.getItemViewType(position) == 0) {
+                if (mInterstitialAd.isLoaded())
+                    mInterstitialAd.show(); //Show Interstitial Ad;
+                Component component = (Component) mRecyclerViewItems.get(position);
+                Intent intent = new Intent(view.getContext(), PDFActivity.class);
+                intent.putExtra("url", component.getmComponentURL());
+                startActivity(intent);
+            }
         }));
 
         if (ComponentActivity.intent != null) {
             String activityKiId = ComponentActivity.activityId;
-            String id = HelperMethods.generateChecksum();
+            String id = HelperMethods.INSTANCE.generateChecksum();
             JSONObject dataObj = new JSONObject();
             try {
                 dataObj.putOpt("id", id);
@@ -248,7 +267,7 @@ public class ComponentDetailsFragment extends Fragment{
                         item.setmComponentKiId(chapterObject.getString("componentkiid"));
                         item.setmComponentName(chapterObject.getString("componentname"));
                         item.setmComponentURL(chapterObject.getString("componenturl"));
-                        activity.activityItemArrayList.add(item);
+                        activity.mRecyclerViewItems.add(item);
                         switch (i%10){
                             case 0:
                                 item.setCardBackground(activity.getResources().getDrawable(R.drawable.gradient_ten));
@@ -300,8 +319,72 @@ public class ComponentDetailsFragment extends Fragment{
             if (activity.pDialog.isShowing()) {
                 activity.pDialog.dismiss();
             }
-            activity.adapter = new ComponentAdapter(activity.getActivity(), activity.activityItemArrayList);
+            activity.adapter = new ComponentAdapter(activity.getActivity(), activity.mRecyclerViewItems);
             activity.recyclerView.setAdapter(activity.adapter);
+            activity.loadNativeAds();
+        }
+    }
+
+    private void insertAdsInMenuItems(List<UnifiedNativeAd> mNativeAds, List<Object> mRecyclerViewItems) {
+        if (mNativeAds.size() <= 0) {
+            return;
+        }
+        int offset = (mRecyclerViewItems.size() / mNativeAds.size()) + 1;
+        int index = 0;
+        for (UnifiedNativeAd ad : mNativeAds) {
+            mRecyclerViewItems.add(index, ad);
+            index = index + offset;
+            adapter.setItems(mRecyclerViewItems);
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    private void loadNativeAds() {
+        if (getContext() != null) {
+            AdLoader.Builder builder = new AdLoader.Builder(getContext(), getString(R.string.vqb_native_advanced));
+            adLoader = builder.forUnifiedNativeAd(
+                    unifiedNativeAd -> {
+                        // A native ad loaded successfully, check if the ad loader has finished loading
+                        // and if so, insert the ads into the list.
+                        mNativeAds.add(unifiedNativeAd);
+                        if (!adLoader.isLoading()) {
+                            insertAdsInMenuItems(mNativeAds, mRecyclerViewItems);
+                            //adapter.notifyDataSetChanged();
+                        }
+                    }).withAdListener(
+                    new AdListener() {
+                        @Override
+                        public void onAdFailedToLoad(int errorCode) {
+                            // A native ad failed to load, check if the ad loader has finished loading
+                            // and if so, insert the ads into the list.
+                            Log.e("MainActivity", "The previous native ad failed to load. Attempting to" + " load another.");
+                            if (!adLoader.isLoading()) {
+                                insertAdsInMenuItems(mNativeAds, mRecyclerViewItems);
+                                //adapter.notifyDataSetChanged();
+                            }
+                        }
+
+                        @Override
+                        public void onAdClicked() {
+                            //super.onAdClicked();
+                            //Ad Clicked
+                            Log.e("adclicked", "yes");
+                        }
+                    }).build();
+
+            //Number of Native Ads to load
+            int NUMBER_OF_ADS;
+            if (mRecyclerViewItems.size() <= 9)
+                NUMBER_OF_ADS = 3;
+            else {
+                NUMBER_OF_ADS = (mRecyclerViewItems.size() / 5) + 1;
+            }
+
+
+            // Load the Native ads.
+            adLoader.loadAds(new AdRequest.Builder().build(), NUMBER_OF_ADS);
+
+            Log.e("numberOfAds", String.valueOf(NUMBER_OF_ADS));
         }
     }
 }

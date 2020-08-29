@@ -107,7 +107,7 @@ public class RegistrationFragment2 extends Fragment {
         String password = bundle.getString("password");
         String userCity = edTvCity.getText().toString().toLowerCase().trim();
         String school = edTvSchool.getText().toString().toLowerCase().trim();
-        String id = HelperMethods.generateChecksum();
+        String id = HelperMethods.INSTANCE.generateChecksum();
 
             if (isNetworkAvailable()) {
                 if (!name.isEmpty() && !email.isEmpty() && !mobileNumber.isEmpty() && !password.isEmpty()&&
@@ -239,7 +239,7 @@ public class RegistrationFragment2 extends Fragment {
         // load fragment
         if (getActivity() != null) {
             FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.frameLayoutSignup, fragment);
+            transaction.replace(R.id.frame_container, fragment);
             transaction.addToBackStack(null);
             transaction.commit();
         }

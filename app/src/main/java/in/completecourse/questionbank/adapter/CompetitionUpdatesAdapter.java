@@ -59,7 +59,7 @@ public class CompetitionUpdatesAdapter extends RecyclerView.Adapter<CompetitionU
         return updateItemsArrayList.size();
     }
 
-    class UpdatesViewHolder extends RecyclerView.ViewHolder {
+    static class UpdatesViewHolder extends RecyclerView.ViewHolder {
         final TextView serialText, titleText, descText, knowMoreText;
 
         UpdatesViewHolder(@NonNull View itemView) {

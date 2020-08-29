@@ -6,6 +6,15 @@
     android:layout_marginBottom="28dp"
     android:layout_marginTop="28dp">
 
+    <ProgressBar
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:indeterminateBehavior="repeat"
+        android:visibility="gone"/>
+
     <TextView
         android:id="@+id/login_text"
         android:layout_width="match_parent"

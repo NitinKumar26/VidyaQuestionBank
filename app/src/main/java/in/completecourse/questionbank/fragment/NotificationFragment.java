@@ -61,7 +61,7 @@ public class NotificationFragment extends Fragment {
 
         recyclerView.setNestedScrollingEnabled(false);
 
-        if (HelperMethods.isNetworkAvailable(getActivity())){
+        if (HelperMethods.INSTANCE.isNetworkAvailable(getActivity())){
             new GetNotifications(NotificationFragment.this).execute();
 
         }else{

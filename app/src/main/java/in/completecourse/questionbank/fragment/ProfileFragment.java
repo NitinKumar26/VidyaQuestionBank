@@ -1,14 +1,14 @@
 package in.completecourse.questionbank.fragment;
 
-import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,44 +16,33 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.lang.ref.WeakReference;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import cz.msebera.android.httpclient.HttpResponse;
-import cz.msebera.android.httpclient.client.HttpClient;
-import cz.msebera.android.httpclient.client.methods.HttpPost;
-import cz.msebera.android.httpclient.entity.StringEntity;
-import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
-import cz.msebera.android.httpclient.params.HttpConnectionParams;
-import cz.msebera.android.httpclient.util.EntityUtils;
+import in.completecourse.questionbank.EditProfileActivity;
+import in.completecourse.questionbank.MoreAppsActivity;
 import in.completecourse.questionbank.R;
-import in.completecourse.questionbank.app.AppConfig;
-import in.completecourse.questionbank.helper.HelperMethods;
 import in.completecourse.questionbank.helper.PrefManager;
 
 public class ProfileFragment extends Fragment {
 
-    @BindView(R.id.name)
-    TextView name;
-    @BindView(R.id.email)
-    TextView email;
-    @BindView(R.id.mobile)
-    TextView mobileNumber;
-    @BindView(R.id.tvClass)
-    TextView tvClass;
-    @BindView(R.id.school)
-    TextView school;
-    @BindView(R.id.city)
-    TextView city;
-    @BindView(R.id.type)
-    TextView type;
-    private ProgressDialog pDialog;
+    @BindView(R.id.tv_userName) TextView name;
+    @BindView(R.id.tv_email) TextView email;
+    @BindView(R.id.tv_contact) TextView mobileNumber;
+    @BindView(R.id.tv_class) TextView tvClass;
+    @BindView(R.id.tv_school) TextView school;
+
+    @BindView(R.id.progressBar) ProgressBar progressBar;
+    @BindView(R.id.adView) AdView adView;
+
     private PrefManager mPrefManager;
+    private FirebaseFirestore db;
+    private FirebaseAuth mAuth;
 
     @Nullable
     @Override
@@ -65,34 +54,49 @@ public class ProfileFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+        //super.onViewCreated(view, savedInstanceState);
+
+        db = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
 
         mPrefManager = new PrefManager(view.getContext().getApplicationContext());
 
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
+
         if (isNetworkAvailable()) {
-
-            String mUserId = mPrefManager.getUserId();
-            String id = HelperMethods.generateChecksum();
-
-            JSONObject dataObj = new JSONObject();
-            try {
-                dataObj.putOpt("id", id);
-                dataObj.putOpt("uid", mUserId);
-                ProfileFragment.JSONTransmitter jsonTransmitter = new ProfileFragment.JSONTransmitter(ProfileFragment.this);
-                jsonTransmitter.execute(dataObj);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }else{
-            Toast.makeText(view.getContext(), "Please check your internet connection", Toast.LENGTH_SHORT).show();
+            getUserProfile(mAuth.getUid());
         }
     }
 
     @OnClick(R.id.btn_logout)
     void logout(){
+        mAuth.signOut();
         mPrefManager.logoutUser();
     }
 
+    @OnClick(R.id.btn_edit_profile)
+    void editProfile(){
+        Intent intent = new Intent(getContext(), EditProfileActivity.class);
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.btn_share)
+    void shareApp(){
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        String shareBody = "Hey download Vidya Question Bank App and learn on the go. \n https://play.google.com/store/apps/details?id=in.completecourse.questionbank";
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Download App");
+        intent.putExtra(Intent.EXTRA_TEXT, shareBody);
+        startActivity(Intent.createChooser(intent, "Share via"));
+    }
+
+
+    @OnClick(R.id.btn_more_app)
+    void moreApps(){
+        Intent intent = new Intent(getContext(), MoreAppsActivity.class);
+        startActivity(intent);
+    }
 
     /**
      * Checks if there is Internet accessible.
@@ -109,72 +113,24 @@ public class ProfileFragment extends Fragment {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
+    private void getUserProfile(String userId){
+        db.collection("qb_users").document(userId).get().addOnCompleteListener(task -> progressBar.setVisibility(View.GONE)).addOnSuccessListener(documentSnapshot -> {
 
+            name.setText(getString(R.string.username, documentSnapshot.getString("name")));
 
-    private static class JSONTransmitter extends AsyncTask<JSONObject, JSONObject, JSONObject> {
-        private final WeakReference<ProfileFragment> activityWeakReference;
+            if (documentSnapshot.getString("email") == null) email.setText(getString(R.string.email_pro, "Not Provided"));
+            else email.setText(getString(R.string.email_pro, documentSnapshot.getString("email")));
 
-        JSONTransmitter(ProfileFragment context){
-            activityWeakReference = new WeakReference<>(context);
-        }
+            if (documentSnapshot.getString("class") == null) tvClass.setText(getString(R.string.user_class, "Not Provided"));
+            else tvClass.setText(getString(R.string.user_class, documentSnapshot.getString("class")));
 
-        @Override
-        protected void onPreExecute() {
-            ProfileFragment activity = activityWeakReference.get();
-            activity.pDialog = new ProgressDialog(activity.getContext());
-            activity.pDialog.setMessage("Please wait...");
-            activity.pDialog.setCancelable(false);
-            activity.pDialog.show();
-        }
+            if (documentSnapshot.getString("school") == null) school.setText(getString(R.string.school_pro, "Not Provided"));
+            else school.setText(getString(R.string.school_pro, documentSnapshot.getString("school")));
 
-        @Override
-        protected JSONObject doInBackground(JSONObject... data) {
-            final ProfileFragment activity = activityWeakReference.get();
-            JSONObject json = data[0];
-            HttpClient client = new DefaultHttpClient();
-            HttpConnectionParams.setConnectionTimeout(client.getParams(), 100000);
-            JSONObject jsonResponse;
-            String SIGNUP_URL = AppConfig.URL_USER_DETAILS;
-            HttpPost post = new HttpPost(SIGNUP_URL);
-            try {
-                StringEntity se = new StringEntity( json.toString());
-                post.addHeader("content-type", "application/json");
-                post.addHeader("accept", "application/json");
-                post.setEntity(se);
-                HttpResponse response;
-                response = client.execute(post);
-                String resFromServer = EntityUtils.toString(response.getEntity());
-                jsonResponse = new JSONObject(resFromServer);
-                    //String distributor_id = jsonResponse.getString("distToken");
-                    String username = jsonResponse.getString("username");
-                    String uemail = jsonResponse.getString("uemail");
-                    String umobile = jsonResponse.getString("umobile");
-                    String uclass = jsonResponse.getString("uclass");
-                    String uschool = jsonResponse.getString("uschool");
-                    String ucity = jsonResponse.getString("ucity");
-                    String utype = jsonResponse.getString("utype");
-                    if (activity.getActivity() != null){
-                        activity.getActivity().runOnUiThread(() -> {
-                            activity.name.setText(username);
-                            activity.email.setText(uemail);
-                            activity.mobileNumber.setText(umobile);
-                            activity.tvClass.setText(uclass);
-                            activity.school.setText(uschool);
-                            activity.city.setText(ucity);
-                            activity.type.setText(utype);
-                        });
-                    }
-            } catch (Exception e) { e.printStackTrace();}
+            if (documentSnapshot.getString("phone") == null) mobileNumber.setText(getString(R.string.contact, "Not Provided"));
+            else mobileNumber.setText(getString(R.string.contact, documentSnapshot.getString("phone")));
 
-            return null;
-        }
+        }).addOnFailureListener(e -> Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show());
 
-        @Override
-        protected void onPostExecute(JSONObject jsonObject) {
-            ProfileFragment activity = activityWeakReference.get();
-            if (activity.pDialog.isShowing()) {
-                activity.pDialog.dismiss();
-            }
-        }
     }
 }

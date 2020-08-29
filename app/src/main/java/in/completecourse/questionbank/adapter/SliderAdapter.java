@@ -45,8 +45,8 @@ public class SliderAdapter extends PagerAdapter {
                 view = inflater.inflate(R.layout.slider_item, container, false);
                 ImageView imageView = view.findViewById(R.id.slider_imageView);
                 Glide.with(mContext)
-                        .load(update.getUrl())
-                        .placeholder(R.drawable.background_gradient)
+                        .load(update.getBanner_url())
+                        //.placeholder(R.drawable.background_gradient)
                         .into(imageView);
             }
             ViewPager viewPager = (ViewPager) container;

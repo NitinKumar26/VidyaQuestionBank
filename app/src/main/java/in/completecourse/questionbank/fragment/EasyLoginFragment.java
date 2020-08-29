@@ -2,42 +2,53 @@ package in.completecourse.questionbank.fragment;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import org.json.JSONException;
-import org.json.JSONObject;
-import java.lang.ref.WeakReference;
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import cz.msebera.android.httpclient.HttpResponse;
-import cz.msebera.android.httpclient.client.HttpClient;
-import cz.msebera.android.httpclient.client.methods.HttpPost;
-import cz.msebera.android.httpclient.entity.StringEntity;
-import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
-import cz.msebera.android.httpclient.params.HttpConnectionParams;
-import cz.msebera.android.httpclient.util.EntityUtils;
-
-import in.completecourse.questionbank.R;
 import in.completecourse.questionbank.MainActivity;
-import in.completecourse.questionbank.app.AppConfig;
+import in.completecourse.questionbank.R;
 import in.completecourse.questionbank.helper.HelperMethods;
 import in.completecourse.questionbank.helper.PrefManager;
 
 public class EasyLoginFragment extends Fragment {
     private ProgressDialog pDialog;
-    @BindView(R.id.edTv_email_login)
-    EditText edTvEmail;
-    @BindView(R.id.edTv_password)
-    EditText edTvPassword;
+    @BindView(R.id.edTv_name)
+    EditText edTvName;
+    @BindView(R.id.edTv_mobile_number)
+    EditText edTvMobileNumber;
+
+    private FirebaseAuth mAuth;
+    private GoogleSignInClient mGoogleSignInClient;
+    private static final int RC_SIGN = 9001;
+    private FirebaseFirestore db;
+    private String username;
 
     @Nullable
     @Override
@@ -50,27 +61,27 @@ public class EasyLoginFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        edTvEmail = view.findViewById(R.id.edTv_email_login);
-        edTvPassword = view.findViewById(R.id.edTv_password);
+
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+        pDialog = new ProgressDialog(getContext());
+        pDialog.setMessage("Please wait...");
     }
 
     @OnClick(R.id.send_verification_code_button)
-    void sendVerficationCode(){
-        String email = edTvEmail.getText().toString().trim();
-        String password = edTvPassword.getText().toString().trim();
-        String id = HelperMethods.generateChecksum();
-        if (HelperMethods.isNetworkAvailable(getActivity())) {
-            if (!email.isEmpty() && !password.isEmpty()) {
-                JSONObject dataObj = new JSONObject();
-                try {
-                    dataObj.putOpt("uemail", email);
-                    dataObj.putOpt("upassword", password);
-                    dataObj.putOpt("id", id);
-                    JSONTransmitter jsonTransmitter = new JSONTransmitter(EasyLoginFragment.this);
-                    jsonTransmitter.execute(dataObj);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+    void sendVerificationCode(){
+        String name = edTvName.getText().toString().trim();
+        String mobileNumber = edTvMobileNumber.getText().toString().trim();
+        if (HelperMethods.INSTANCE.isNetworkAvailable(getActivity())) {
+            if (!name.isEmpty() && !mobileNumber.isEmpty()) {
+                Bundle bundle = new Bundle();
+                bundle.putString("username", name);
+                bundle.putString("mobileNumber", mobileNumber);
+                OTPFragment otpFragment = new OTPFragment();
+                otpFragment.setArguments(bundle);
+                HelperMethods.INSTANCE.loadFragment(otpFragment, (AppCompatActivity) getActivity());
+
+
             } else {
                 Toast.makeText(getContext(), "Please fill the required details", Toast.LENGTH_SHORT).show();
             }
@@ -79,88 +90,106 @@ public class EasyLoginFragment extends Fragment {
         }
     }
 
-    @OnClick(R.id.signup_text)
-    void signUp(){
-        if (getActivity() != null)
-        HelperMethods.loadFragment(new RegistrationFragment1(), getActivity(), R.id.frameLayoutSignup, true, "registration_fragment");
+    @OnClick(R.id.sign_with_google)
+    void signInWithGoogle(){
+        //[START config_sign_in]
+        //Configure Google Sign in
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        //[END config_sign_in]
+        if (getContext() != null){
+            mGoogleSignInClient = GoogleSignIn.getClient(getContext(), gso);
+            pDialog.show();
+            signIn();
+        }
     }
 
-    @OnClick(R.id.tv_reset_password)
-    void resetPassword(){
-        if (getActivity() != null)
-            HelperMethods.loadFragment(new SendOTPFragment(), getActivity(), R.id.frameLayoutSignup, true, "otp_fragment");
+    private void signIn(){
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN);
     }
 
-    private static class JSONTransmitter extends AsyncTask<JSONObject, JSONObject, JSONObject> {
-        private final WeakReference<EasyLoginFragment> activityWeakReference;
-        String userId, userEmail;
-        private PrefManager prefManager;
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        //super.onActivityResult(requestCode, resultCode, data);
 
-
-        JSONTransmitter(EasyLoginFragment context){
-            activityWeakReference = new WeakReference<>(context);
-        }
-
-        @Override
-        protected void onPreExecute() {
-            EasyLoginFragment activity = activityWeakReference.get();
-            activity.pDialog = new ProgressDialog(activity.getContext());
-            activity.pDialog.setMessage("Please wait...");
-            activity.pDialog.setCancelable(false);
-            activity.pDialog.show();
-        }
-
-        @Override
-        protected JSONObject doInBackground(JSONObject... data) {
-            final EasyLoginFragment activity = activityWeakReference.get();
-            JSONObject json = data[0];
-            HttpClient client = new DefaultHttpClient();
-            HttpConnectionParams.setConnectionTimeout(client.getParams(), 100000);
-            JSONObject jsonResponse;
-            String LOGIN_URL = AppConfig.URL_LOGIN;
-            HttpPost post = new HttpPost(LOGIN_URL);
+        if (requestCode == RC_SIGN){
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
-                StringEntity se = new StringEntity( json.toString());
-                post.addHeader("content-type", "application/json");
-                post.addHeader("accept", "application/json");
-                post.setEntity(se);
-                HttpResponse response;
-                response = client.execute(post);
-                String resFromServer = EntityUtils.toString(response.getEntity());
-                jsonResponse = new JSONObject(resFromServer);
-
-                if (!jsonResponse.has("error")){
-                    //String distributor_id = jsonResponse.getString("distToken");
-                    userEmail = jsonResponse.getString("email");
-                    userId = jsonResponse.getString("userid");
-
-                    if (activity.getContext() != null) prefManager = new PrefManager(activity.getContext().getApplicationContext());
-                    prefManager.setUserDetails(userId, userEmail);
-                    prefManager.setLogin(true);
-
-                    //activity.prefManager.setUserDetails(userId, userEmail);
-
-                    activity.startActivity(new Intent(activity.getContext(), MainActivity.class));
-                    if (activity.getActivity() != null)
-                    activity.getActivity().finish();
-
-                }else{
-                    final String msg = jsonResponse.getString("error");
-                    if (activity.getActivity() != null) {
-                        activity.getActivity().runOnUiThread(() -> Toast.makeText(activity.getContext(), msg, Toast.LENGTH_SHORT).show());
-                    }
+                //Google sign in was successful, authenticate with Firebase
+                Toast.makeText(getContext(), "Google Sign in successful ", Toast.LENGTH_SHORT).show();
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                if (account != null) {
+                    username = account.getDisplayName();
+                    //userDocId = account.getId();
+                    firebaseAuthWithGoogle(account);
                 }
-            } catch (Exception e) { e.printStackTrace();}
 
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(JSONObject jsonObject) {
-            EasyLoginFragment activity = activityWeakReference.get();
-            if (activity.pDialog.isShowing()) {
-                activity.pDialog.dismiss();
+            }catch (ApiException e){
+                //Google Sign in failed update the UI accordingly
+                if (pDialog.isShowing()) pDialog.dismiss();
+                Toast.makeText(getContext(), "Sign In Failed", Toast.LENGTH_SHORT).show();
+                Log.w("LoginActivity", "Google Sign in Failed", e);
             }
         }
+
     }
+
+    //[START auth_with_google]
+    private void firebaseAuthWithGoogle(GoogleSignInAccount account){
+        AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
+        if (getActivity()!= null) {
+            mAuth.signInWithCredential(credential)
+                    .addOnCompleteListener(task ->
+                            pDialog.hide())
+                    .addOnSuccessListener(authResult -> {
+                        if (getContext() != null) {
+                            if (authResult.getUser() != null) {
+                                pDialog.show();
+                                db.collection("qb_users").document(authResult.getUser().getUid()).get()
+                                        .addOnCompleteListener(task -> pDialog.dismiss())
+                                        .addOnSuccessListener(documentSnapshot -> {
+                                            if (documentSnapshot.exists()){
+                                                //User details are already in the database
+                                                if (getContext() != null) {
+                                                    PrefManager prefManager = new PrefManager(getContext());
+                                                    prefManager.setFirstTimeLaunch(false);
+                                                    prefManager.setLogin(true);
+                                                    Intent intent = new Intent(getContext(), MainActivity.class);
+                                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                    startActivity(intent);
+                                                }
+                                            }else{
+                                                pDialog.dismiss();
+                                                //User details not available in database save them
+                                                Map<String, String> userDetails = new HashMap<>();
+                                                userDetails.put("name", username);
+
+                                                if (mAuth.getCurrentUser() != null) {
+                                                    userDetails.put("email", mAuth.getCurrentUser().getEmail());
+                                                    userDetails.put("userid", authResult.getUser().getUid());
+                                                    db.collection("qb_users").document(authResult.getUser().getUid()).set(userDetails)
+                                                            .addOnCompleteListener(task -> pDialog.dismiss()).addOnSuccessListener(aVoid -> {
+                                                        if (getContext() != null) {
+                                                            PrefManager prefManager = new PrefManager(getContext());
+                                                            prefManager.setFirstTimeLaunch(false);
+                                                            prefManager.setLogin(true);
+                                                            Intent intent = new Intent(getContext(), MainActivity.class);
+                                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                            startActivity(intent);
+                                                        }
+                                                    }).addOnFailureListener(e -> Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show());
+                                                }
+                                            }
+                                        }).addOnFailureListener(e -> Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show());
+                            }
+                        }
+                    });
+        }
+
+    }
+
+
 }

@@ -53,7 +53,7 @@ public class NotificationActivity extends AppCompatActivity {
 
         recyclerView.setNestedScrollingEnabled(false);
 
-        if (HelperMethods.isNetworkAvailable(NotificationActivity.this)){
+        if (HelperMethods.INSTANCE.isNetworkAvailable(NotificationActivity.this)){
             new GetNotifications(NotificationActivity.this).execute();
 
         }else{

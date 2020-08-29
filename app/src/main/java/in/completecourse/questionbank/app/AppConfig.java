@@ -18,7 +18,7 @@ public class AppConfig {
     public static final String URL_USER_DETAILS = "http://qb.vidyastore.in/api/UserDetails";
 
     //Latest Books URL
-    public static final String URL_LATEST_BOOKS = "http://completecourse.in/api/newarrivals";
+    public static final String URL_LATEST_BOOKS = "http://completecourse.in/api/newarrivals.php";
 
     //Request Book
     public static final String URL_REQUEST_BOOK = "http://qb.vidyastore.in/api/submitRequest";
@@ -30,15 +30,10 @@ public class AppConfig {
     public static final String URL_COMPONENTS = "http://qb.vidyastore.in/api/GetComponents";
 
     //Class Updates
-    public static final String URL_COMPETITION_UPDATES = "http://completecourse.in/api/GetCompetitionUpdates";
+    public static final String URL_COMPETITION_UPDATES = "http://completecourse.in/api/competition.php";
 
     //Notification URL
     public static final String URL_NOTIFICATION = "http://completecourse.in/api/GetNotifications";
-
-// --Commented out by Inspection START (2/11/19 12:17 AM):
-//    //URL VersionCode
-//    public static final String URL_VERSION_CODE = "http://qb.vidyastore.in/api/GetVcode?id=";
-// --Commented out by Inspection STOP (2/11/19 12:17 AM)
 
     //URL Send OTP for password reset
     public static final String URL_SEND_OTP = "http://qb.vidyastore.in/api/sendOTP";

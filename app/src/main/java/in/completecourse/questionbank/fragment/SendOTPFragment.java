@@ -50,8 +50,8 @@ public class SendOTPFragment extends Fragment {
     @OnClick(R.id.send_verification_code_button)
     void sendVerificationCode(){
         mobileNumber = editText.getText().toString();
-        String id = HelperMethods.generateChecksum();
-        if (HelperMethods.isNetworkAvailable(getActivity())) {
+        String id = HelperMethods.INSTANCE.generateChecksum();
+        if (HelperMethods.INSTANCE.isNetworkAvailable(getActivity())) {
             if (!mobileNumber.isEmpty() ) {
                 JSONObject dataObj = new JSONObject();
                 try {
@@ -141,7 +141,7 @@ public class SendOTPFragment extends Fragment {
         // load fragment
         if (getActivity() != null) {
             FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.frameLayoutSignup, fragment);
+            transaction.replace(R.id.frame_container, fragment);
             transaction.addToBackStack(null);
             transaction.commit();
         }

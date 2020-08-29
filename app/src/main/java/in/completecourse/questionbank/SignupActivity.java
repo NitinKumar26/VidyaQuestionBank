@@ -14,9 +14,8 @@ public class SignupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
-
         //Load EasyLoginFragment
-        HelperMethods.loadFragment(new EasyLoginFragment(), this, R.id.frameLayoutSignup, true, "easy");
+        HelperMethods.INSTANCE.loadFragment(new EasyLoginFragment(), this);
 
     }
 }

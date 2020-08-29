@@ -4,27 +4,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
-
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
 import in.completecourse.questionbank.fragment.ClassDetailsFragment;
 import in.completecourse.questionbank.helper.HelperMethods;
 import in.completecourse.questionbank.utils.ListConfig;
 
 public class SubjectActivity extends AppCompatActivity implements View.OnClickListener {
     public static Intent intent;
-    public static Spinner classSpinner;
     public static String subjectString, classString;
-
-    //You shouldn't define first page = 0
-    //Let's define first page = 'viewpager size' to make endless carousel
-
-
-    public static int FIRST_PAGE = 4;
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -99,12 +88,9 @@ public class SubjectActivity extends AppCompatActivity implements View.OnClickLi
         else if (classString.equalsIgnoreCase("4"))
             classDetails.setText(getString(R.string.class_details, "9th"));
 
-        //loadFragment(new ClassDetailsFragment());
-
-        HelperMethods.loadFragment(new ClassDetailsFragment(), SubjectActivity.this, R.id.frameLayoutLogin, false, null);
+        HelperMethods.INSTANCE.loadFragment(new ClassDetailsFragment(), SubjectActivity.this);
 
     }
-
 
     @Override
     public void onClick(View view) {
@@ -115,10 +101,10 @@ public class SubjectActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             case R.id.ic_competition_updates:
                 intent = new Intent(SubjectActivity.this, CompetitionUpdatesActivity.class);
+                intent.putExtra("class", classString);
                 startActivity(intent);
                 break;
         }
     }
-
 
 }

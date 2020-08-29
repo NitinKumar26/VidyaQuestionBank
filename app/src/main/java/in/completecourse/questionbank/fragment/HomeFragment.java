@@ -18,11 +18,17 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import butterknife.BindView;
@@ -42,22 +48,14 @@ import in.completecourse.questionbank.SubjectActivity;
 import in.completecourse.questionbank.adapter.ImageAdapter;
 import in.completecourse.questionbank.adapter.SliderAdapter;
 import in.completecourse.questionbank.app.AppConfig;
-import in.completecourse.questionbank.helper.APIService;
 import in.completecourse.questionbank.helper.HelperMethods;
 import in.completecourse.questionbank.helper.HttpHandler;
 import in.completecourse.questionbank.helper.PrefManager;
 import in.completecourse.questionbank.model.CardModel;
 import in.completecourse.questionbank.model.Update;
-import in.completecourse.questionbank.model.Updates;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class HomeFragment extends Fragment {
 
-    private static final String BASE_URL = "http://completecourse.in/api/";
     private ArrayList<Update> updateList;
     private static String urlQR;
     private ProgressDialog pDialog;
@@ -70,15 +68,14 @@ public class HomeFragment extends Fragment {
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
     private PrefManager prefManager;
-
+    private FirebaseFirestore db;
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data)  {
         if (requestCode == 100 && resultCode == 100 && data != null){
             urlQR = data.getStringExtra("url");
             new GetBookName(HomeFragment.this).execute();
         }
-        //super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -88,10 +85,11 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        db = FirebaseFirestore.getInstance();
 
         prefManager = new PrefManager(view.getContext().getApplicationContext());
 
@@ -117,32 +115,7 @@ public class HomeFragment extends Fragment {
         }));
 
         if (isNetworkAvailable()){
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-            APIService service = retrofit.create(APIService.class);
-            Call<Updates> call = service.getHeroes();
-            call.enqueue(new Callback<Updates>() {
-
-                @Override
-                public void onResponse(@NonNull Call<Updates> call, @NonNull Response<Updates> response) {
-                    if (response.body() != null){
-                        updateList = response.body().getHeros();
-                        SliderAdapter sliderAdapter = new SliderAdapter(view.getContext(), updateList);
-                        mViewPager.setAdapter(sliderAdapter);
-                        indicator.setupWithViewPager(mViewPager, true);
-                        Timer timer = new Timer();
-                        timer.scheduleAtFixedRate(new SliderTimer(), 4000, 6000);
-                    }
-                }
-
-                @Override
-                public void onFailure(@NonNull Call<Updates> call, @NonNull Throwable t) {
-                    Toast.makeText(view.getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-
+            getUpdates();
         }else{
             Toast.makeText(view.getContext(), "Please check your internet connection.", Toast.LENGTH_SHORT).show();
         }
@@ -151,7 +124,7 @@ public class HomeFragment extends Fragment {
     @OnClick(R.id.btn_request_now)
     void requestBook(){
         if (isNetworkAvailable()) {
-            String id = HelperMethods.generateChecksum();
+            String id = HelperMethods.INSTANCE.generateChecksum();
             String userrequest = editText.getText().toString().trim();
             String mUserId = prefManager.getUserId();
             if (!userrequest.isEmpty()) {
@@ -171,11 +144,7 @@ public class HomeFragment extends Fragment {
             Toast.makeText(getContext(), "Please check your internet connection", Toast.LENGTH_SHORT).show();
     }
 
-
-
-
     private class SliderTimer extends TimerTask {
-
         @Override
         public void run() {
             if (getActivity() != null){
@@ -189,7 +158,6 @@ public class HomeFragment extends Fragment {
             }
         }
     }
-
 
     /**
      * Checks if there is Internet accessible.
@@ -205,7 +173,6 @@ public class HomeFragment extends Fragment {
         }
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
-
 
     private static class GetBookName extends AsyncTask<Void, Void, Void> {
         private final WeakReference<HomeFragment> activityWeakReference;
@@ -256,7 +223,6 @@ public class HomeFragment extends Fragment {
             super.onPostExecute(result);
 
         }
-
     }
 
     private static class JSONTransmitter extends AsyncTask<JSONObject, JSONObject, JSONObject> {
@@ -319,8 +285,22 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    private void getUpdates(){
+        db.collection("updates").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                List<Update> updates = queryDocumentSnapshots.toObjects(Update.class);
+                updateList = new ArrayList<>();
+                updateList.addAll(updates);
+                SliderAdapter sliderAdapter = new SliderAdapter(getContext(), updateList);
+                mViewPager.setAdapter(sliderAdapter);
+                indicator.setupWithViewPager(mViewPager, true);
+                Timer timer = new Timer();
+                timer.scheduleAtFixedRate(new SliderTimer(), 4000, 6000);
+            }
+        });
 
-
+    }
 }
 
 

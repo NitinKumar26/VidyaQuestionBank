@@ -45,7 +45,7 @@ public class SplashActivity extends AppCompatActivity {
         int versionCode = BuildConfig.VERSION_CODE;
         versionCodeApp = String.valueOf(versionCode);
 
-        if (HelperMethods.isNetworkAvailable(SplashActivity.this))
+        if (HelperMethods.INSTANCE.isNetworkAvailable(SplashActivity.this))
             checkVersionCode();
         else
             Toast.makeText(SplashActivity.this, "Please Check your Internet Connection", Toast.LENGTH_LONG).show();
@@ -65,7 +65,6 @@ public class SplashActivity extends AppCompatActivity {
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
-
 
     private void checkVersionCode(){
         db.collection("flags").document("version_code").get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {

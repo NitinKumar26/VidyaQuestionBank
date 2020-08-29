@@ -62,11 +62,11 @@ public class ResetPasswordFragment extends Fragment {
             Toast.makeText(getContext(), "Please enter your password", Toast.LENGTH_SHORT).show();
         else{
             if (sPassword.equalsIgnoreCase(sPasswordRepeat)) {
-                if (HelperMethods.isNetworkAvailable(getActivity())) {
+                if (HelperMethods.INSTANCE.isNetworkAvailable(getActivity())) {
                     try {
                         dataObj.putOpt("umobile", mobileNumber);
                         dataObj.putOpt("upassword", sPassword);
-                        dataObj.putOpt("id", HelperMethods.generateChecksum());
+                        dataObj.putOpt("id", HelperMethods.INSTANCE.generateChecksum());
                         JSONTransmitter jsonTransmitter = new JSONTransmitter(ResetPasswordFragment.this);
                         jsonTransmitter.execute(dataObj);
                     } catch (JSONException e) {
@@ -120,7 +120,7 @@ public class ResetPasswordFragment extends Fragment {
 
                     if (activity.getActivity() != null) {
                         activity.getActivity().runOnUiThread(() -> Toast.makeText(activity.getContext(), message, Toast.LENGTH_SHORT).show());
-                        HelperMethods.loadFragment(new EasyLoginFragment(), activity.getActivity(), R.id.frameLayoutSignup, false, "easy");
+                        //HelperMethods.INSTANCE.loadFragment(new EasyLoginFragment(), activity.getActivity());
                     }
 
                 }

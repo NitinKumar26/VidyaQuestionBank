@@ -12,6 +12,7 @@ import com.mukesh.OtpView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import in.completecourse.questionbank.LoginActivity;
 import in.completecourse.questionbank.R;
 import in.completecourse.questionbank.helper.HelperMethods;
 
@@ -39,8 +40,8 @@ public class OTPVerifyFragment extends Fragment {
                     bundle1.putString("umobile", contact);
                     ResetPasswordFragment resetPasswordFragment = new ResetPasswordFragment();
                     resetPasswordFragment.setArguments(bundle1);
-                    if (getActivity() != null)
-                        HelperMethods.loadFragment(resetPasswordFragment, getActivity(), R.id.frameLayoutSignup, true, "reset");
+                    //if (getActivity() != null)
+                        //HelperMethods.INSTANCE.loadFragment(resetPasswordFragment, LoginActivity);
                 } else {
                     Toast.makeText(view.getContext(), "Please enter the correct OTP", Toast.LENGTH_SHORT).show();
                 }

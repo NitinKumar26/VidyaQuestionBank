@@ -19,6 +19,9 @@ import in.completecourse.questionbank.helper.HelperMethods;
 public class MainActivity extends AppCompatActivity {
     // --Commented out by Inspection (2/11/19 12:17 AM):private TextView titleText;
     private boolean doubleBackToExitPressedOnce = false;
+    private HomeFragment homeFragment;
+    private NewArrivalFragment newArrivalFragment;
+    private ProfileFragment profileFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,9 +32,11 @@ public class MainActivity extends AppCompatActivity {
         navigation.setItemIconTintList(null);
         CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) navigation.getLayoutParams();
         layoutParams.setBehavior(new HideBottomViewOnScrollBehavior());
+        homeFragment = new HomeFragment();
+        newArrivalFragment = new NewArrivalFragment();
+        profileFragment = new ProfileFragment();
         navigation.setOnNavigationItemSelectedListener(listener);
-        HelperMethods.loadFragment(new HomeFragment(), MainActivity.this, R.id.frame_container, false, "home");
-        //titleText.setText(R.string.home);
+        HelperMethods.INSTANCE.loadFragment(homeFragment, MainActivity.this);
     }
 
     final BottomNavigationView.OnNavigationItemSelectedListener listener = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -39,22 +44,24 @@ public class MainActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()){
                 case R.id.navigation_home:
-                    HelperMethods.loadFragment(new HomeFragment(), MainActivity.this, R.id.frame_container, false, "home");
-                    //titleText.setText(R.string.home);
+                    HelperMethods.INSTANCE.showFragment(homeFragment, MainActivity.this);
+                    HelperMethods.INSTANCE.hideFragment(newArrivalFragment, MainActivity.this);
+                    HelperMethods.INSTANCE.hideFragment(profileFragment, MainActivity.this);
                     return true;
                 case R.id.navigation_new_arrival:
-                    HelperMethods.loadFragment(new NewArrivalFragment(), MainActivity.this, R.id.frame_container, false, "new_arrivals");
-                    //titleText.setText(R.string.new_arrivals);
+                    HelperMethods.INSTANCE.showFragment(newArrivalFragment, MainActivity.this);
+                    HelperMethods.INSTANCE.hideFragment(homeFragment, MainActivity.this);
+                    HelperMethods.INSTANCE.hideFragment(profileFragment, MainActivity.this);
                     return true;
                 case R.id.navigation_profile:
-                    HelperMethods.loadFragment(new ProfileFragment(), MainActivity.this, R.id.frame_container, false, "profile");
-                    //titleText.setText(R.string.profile);
+                    HelperMethods.INSTANCE.showFragment(profileFragment, MainActivity.this);
+                    HelperMethods.INSTANCE.hideFragment(newArrivalFragment, MainActivity.this);
+                    HelperMethods.INSTANCE.hideFragment(homeFragment, MainActivity.this);
                     return true;
             }
             return false;
         }
     };
-
 
     @Override
     public void onBackPressed() {

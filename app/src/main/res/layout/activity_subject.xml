@@ -114,7 +114,7 @@
         </LinearLayout>
 
     <FrameLayout
-        android:id="@+id/frameLayoutLogin"
+        android:id="@+id/frame_container"
         android:visibility="visible"
         android:layout_below="@id/linear"
         android:layout_width="match_parent"

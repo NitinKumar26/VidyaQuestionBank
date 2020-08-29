@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,20 +18,21 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdLoader;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
-import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,6 +40,7 @@ import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -56,9 +59,8 @@ import in.completecourse.questionbank.app.AppConfig;
 import in.completecourse.questionbank.helper.HelperMethods;
 import in.completecourse.questionbank.model.ActivityItem;
 
-
 public class ClassDetailsFragment extends Fragment{
-    private ArrayList<ActivityItem> activityItemArrayList;
+    //private ArrayList<ActivityItem> activityItemArrayList;
     private ProgressDialog pDialog;
     public static String subjectStringFinal;
     private ClassActivityAdapter adapter;
@@ -76,13 +78,20 @@ public class ClassDetailsFragment extends Fragment{
     private TextView mInhouseAppName, mInHouseRating;
     private Button mInHouseInstallButton;
 
+    //The AdLoader used to load ads
+    private AdLoader adLoader;
+
+    //List of quizItems and native ads that populate the RecyclerView;
+    private List<Object> mRecyclerViewItems = new ArrayList<>();
+    //List of nativeAds that have been successfully loaded.
+    private List<UnifiedNativeAd> mNativeAds = new ArrayList<>();
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_class_details, container, false);
         ButterKnife.bind(this, view);
         return view;
     }
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -102,16 +111,15 @@ public class ClassDetailsFragment extends Fragment{
             mInterstitialAd = new InterstitialAd(getContext());
             mInterstitialAd.setAdUnitId(getContext().getString(R.string.interstitial_ad_id));
         }
-        //mInterstitialAd.loadAd(new AdRequest.Builder().build());
 
         setAds();
 
-        activityItemArrayList = new ArrayList<>();
+        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext(), RecyclerView.VERTICAL, false));
+        recyclerView.addItemDecoration(new DividerItemDecoration(view.getContext(), RecyclerView.VERTICAL));
 
-        recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 3, RecyclerView.VERTICAL, false));
         if (SubjectActivity.intent != null) {
             subjectStringFinal = SubjectActivity.subjectString;
-            String id = HelperMethods.generateChecksum();
+            String id = HelperMethods.INSTANCE.generateChecksum();
             JSONObject dataObj = new JSONObject();
             try {
                 dataObj.putOpt("id", id);
@@ -167,7 +175,7 @@ public class ClassDetailsFragment extends Fragment{
                         JSONObject chapterObject = jsonArray.getJSONObject(i);
                         item.setActivityKaName(chapterObject.getString("activityname"));
                         item.setActivityKiId(chapterObject.getString("activitykiid"));
-                        activity.activityItemArrayList.add(item);
+                        activity.mRecyclerViewItems.add(item);
 
                         switch (i%10){
                             case 0:
@@ -221,21 +229,26 @@ public class ClassDetailsFragment extends Fragment{
                 activity.pDialog.dismiss();
             }
 
-            activity.adapter = new ClassActivityAdapter(activity.getActivity(), activity.activityItemArrayList);
+            activity.adapter = new ClassActivityAdapter(activity.getActivity(), activity.mRecyclerViewItems);
             activity.recyclerView.setAdapter(activity.adapter);
-            activity.recyclerView.addOnItemTouchListener(new HelperMethods.RecyclerTouchListener(activity.getContext(), position -> {
-                if (activity.mInterstitialAd.isLoaded())
-                    activity.mInterstitialAd.show(); //Show Interstitial Ad;
-                Intent intent = new Intent(activity.getContext(), ComponentActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putString("activitykiid", activity.activityItemArrayList.get(position).getActivityKiId());
-                bundle.putString("activityname", activity.activityItemArrayList.get(position).getActivityKaName());
-                bundle.putInt("cardColorPosition", position);
-                bundle.putString("subjectkiid", SubjectActivity.subjectString);
-                bundle.putString("uclass", SubjectActivity.classString);
-                intent.putExtras(bundle);
-                activity.startActivity(intent);
 
+            activity.loadNativeAds();
+
+            activity.recyclerView.addOnItemTouchListener(new HelperMethods.RecyclerTouchListener(activity.getContext(), position -> {
+                if (activity.adapter.getItemViewType(position) == 0) {
+                    ActivityItem item = (ActivityItem) activity.mRecyclerViewItems.get(position);
+                    if (activity.mInterstitialAd.isLoaded())
+                        activity.mInterstitialAd.show(); //Show Interstitial Ad;
+                    Intent intent = new Intent(activity.getContext(), ComponentActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("activitykiid", item.getActivityKiId());
+                    bundle.putString("activityname", item.getActivityKaName());
+                    bundle.putInt("cardColorPosition", position);
+                    bundle.putString("subjectkiid", SubjectActivity.subjectString);
+                    bundle.putString("uclass", SubjectActivity.classString);
+                    intent.putExtras(bundle);
+                    activity.startActivity(intent);
+                }
             }));
         }
     }
@@ -270,43 +283,36 @@ public class ClassDetailsFragment extends Fragment{
                     mLinearInHouse.setVisibility(View.VISIBLE);
                     mBannerAdView.setVisibility(View.GONE);
 
-                    db.collection("in_house_ads").whereEqualTo("is_live", true).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot document) {
-                            for (QueryDocumentSnapshot doc : document) {
-                                //Log.d("document", doc.getId() + " => " + doc.getData());
-                                mBannerUrl = doc.getString("banner_url");
-                                mIconUrl = doc.getString("icon_url");
-                                mInstallUrl = doc.getString("install_url");
-                                mName = doc.getString("name");
-                                mRating = String.valueOf(doc.get("rating"));
-                            }
+                    db.collection("in_house_ads")
+                            .whereEqualTo("is_live", true).get()
+                            .addOnSuccessListener(document -> {
 
-
-                            if (getContext() != null) {
-                                Glide.with(getContext()).load(mBannerUrl).into(mInHouseBanner);
-                                Glide.with(getContext()).load(mIconUrl).into(mInHouseAppIcon);
-                            }
-                            mInhouseAppName.setText(mName);
-                            mInHouseRating.setText(mRating);
-
-                            mInHouseInstallButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    Intent intentRate = new Intent("android.intent.action.VIEW",
-                                            Uri.parse(mInstallUrl));
-                                    startActivity(intentRate);
-
-                                }
-                            });
-
+                        for (QueryDocumentSnapshot doc : document) {
+                            //Log.d("document", doc.getId() + " => " + doc.getData());
+                            mBannerUrl = doc.getString("banner_url");
+                            mIconUrl = doc.getString("icon_url");
+                            mInstallUrl = doc.getString("install_url");
+                            mName = doc.getString("name");
+                            mRating = String.valueOf(doc.get("rating"));
                         }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            //Log.e("exception", "exception" + e.getMessage());
 
+                        if (getContext() != null) {
+                            Glide.with(getContext()).load(mBannerUrl).into(mInHouseBanner);
+                            Glide.with(getContext()).load(mIconUrl).into(mInHouseAppIcon);
                         }
+                        mInhouseAppName.setText(mName);
+                        mInHouseRating.setText(mRating);
+
+                        mInHouseInstallButton.setOnClickListener(v -> {
+                            Intent intentRate = new Intent("android.intent.action.VIEW",
+                                    Uri.parse(mInstallUrl));
+                            startActivity(intentRate);
+
+                        });
+
+                    }).addOnFailureListener(e -> {
+                        //Log.e("exception", "exception" + e.getMessage());
+
                     });
                 }else{
                     mBannerAdView.setVisibility(View.GONE);
@@ -314,6 +320,69 @@ public class ClassDetailsFragment extends Fragment{
                 }
             }
         });
+    }
+
+    private void insertAdsInMenuItems(List<UnifiedNativeAd> mNativeAds, List<Object> mRecyclerViewItems) {
+        if (mNativeAds.size() <= 0) {
+            return;
+        }
+        int offset = (mRecyclerViewItems.size() / mNativeAds.size()) + 1;
+        int index = 0;
+        for (UnifiedNativeAd ad : mNativeAds) {
+            mRecyclerViewItems.add(index, ad);
+            index = index + offset;
+            adapter.setItems(mRecyclerViewItems);
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    private void loadNativeAds() {
+        if (getContext() != null) {
+            AdLoader.Builder builder = new AdLoader.Builder(getContext(), getString(R.string.vqb_native_advanced));
+            adLoader = builder.forUnifiedNativeAd(
+                    unifiedNativeAd -> {
+                        // A native ad loaded successfully, check if the ad loader has finished loading
+                        // and if so, insert the ads into the list.
+                        mNativeAds.add(unifiedNativeAd);
+                        if (!adLoader.isLoading()) {
+                            insertAdsInMenuItems(mNativeAds, mRecyclerViewItems);
+                            //adapter.notifyDataSetChanged();
+                        }
+                    }).withAdListener(
+                    new AdListener() {
+                        @Override
+                        public void onAdFailedToLoad(int errorCode) {
+                            // A native ad failed to load, check if the ad loader has finished loading
+                            // and if so, insert the ads into the list.
+                            Log.e("MainActivity", "The previous native ad failed to load. Attempting to" + " load another.");
+                            if (!adLoader.isLoading()) {
+                                insertAdsInMenuItems(mNativeAds, mRecyclerViewItems);
+                                //adapter.notifyDataSetChanged();
+                            }
+                        }
+
+                        @Override
+                        public void onAdClicked() {
+                            //super.onAdClicked();
+                            //Ad Clicked
+                            Log.e("adclicked", "yes");
+                        }
+                    }).build();
+
+            //Number of Native Ads to load
+            int NUMBER_OF_ADS;
+            if (mRecyclerViewItems.size() <= 9)
+                NUMBER_OF_ADS = 3;
+            else {
+                NUMBER_OF_ADS = (mRecyclerViewItems.size() / 5) + 1;
+            }
+
+
+            // Load the Native ads.
+            adLoader.loadAds(new AdRequest.Builder().build(), NUMBER_OF_ADS);
+
+            Log.e("numberOfAds", String.valueOf(NUMBER_OF_ADS));
+        }
     }
 
 }
