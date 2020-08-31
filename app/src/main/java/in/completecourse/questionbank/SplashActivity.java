@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -15,11 +16,23 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import com.adcolony.sdk.AdColony;
+import com.adcolony.sdk.AdColonyAppOptions;
+import com.google.ads.mediation.adcolony.AdColonyAdapterUtils;
+import com.google.ads.mediation.adcolony.AdColonyMediationAdapter;
+import com.google.ads.mediation.unity.UnityMediationAdapter;
+import com.google.android.gms.ads.AdFormat;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.mediation.InitializationCompleteCallback;
+import com.google.android.gms.ads.mediation.MediationConfiguration;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.unity3d.ads.metadata.MetaData;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import in.completecourse.questionbank.helper.HelperMethods;
 import in.completecourse.questionbank.helper.PrefManager;
@@ -27,7 +40,6 @@ import in.completecourse.questionbank.helper.PrefManager;
 public class SplashActivity extends AppCompatActivity {
     private static String versionCodeApp;
     private static String versionCode;
-    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -39,16 +51,66 @@ public class SplashActivity extends AppCompatActivity {
         changeStatusBarColor();
         setContentView(R.layout.activity_splash);
 
-        db = FirebaseFirestore.getInstance();
-        MobileAds.initialize(SplashActivity.this, SplashActivity.this.getResources().getString(R.string.admob_app_id));
+
+        //GDPR consent for Unity Personalized Ads
+        MetaData metaData = new MetaData(this);
+        metaData.set("gdpr.consent", true);
+        metaData.commit();
+
+        MobileAds.initialize(SplashActivity.this, getString(R.string.admob_app_id));
+
+        //GDPR Consent for AdColony Personalized Ads
+        AdColonyAppOptions appOptions = AdColonyMediationAdapter.getAppOptions();
+        appOptions.setPrivacyFrameworkRequired(AdColonyAppOptions.GDPR, true);
+        appOptions.setPrivacyConsentString(AdColonyAppOptions.GDPR, "1");
+        appOptions.setKeepScreenOn(true);
+
+        AdColony.configure(SplashActivity.this, appOptions,
+                getString(R.string.adcolony_app_id),
+                getString(R.string.adcolony_interstitial));
+
+
+        Bundle bundleInterstitial = new Bundle();
+        bundleInterstitial.putString(AdColonyAdapterUtils.KEY_APP_ID, getString(R.string.adcolony_app_id));
+        bundleInterstitial.putString(AdColonyAdapterUtils.KEY_ZONE_ID, getString(R.string.adcolony_interstitial));
+
+        Bundle bundleBanner = new Bundle();
+        bundleBanner.putString(AdColonyAdapterUtils.KEY_APP_ID, getString(R.string.adcolony_app_id));
+        bundleBanner.putString(AdColonyAdapterUtils.KEY_ZONE_ID, getString(R.string.adcolony_banner));
+
+        AdColonyMediationAdapter adColonyMediationAdapter = new AdColonyMediationAdapter();
+        List<MediationConfiguration> config = new ArrayList<>();
+
+        config.add(new MediationConfiguration(AdFormat.INTERSTITIAL, bundleInterstitial));
+        //config.add(new MediationConfiguration(AdFormat.BANNER, bundleBanner));
+
+        adColonyMediationAdapter.initialize(SplashActivity.this, new InitializationCompleteCallback() {
+            @Override
+            public void onInitializationSucceeded() {}
+            @Override
+            public void onInitializationFailed(String s) { Log.e("adColonyInit", s); }
+        }, config);
+
+        Bundle unityAdsBundle = new Bundle();
+        unityAdsBundle.putString("gameId", getString(R.string.unity_game_id));
+        unityAdsBundle.putString("zoneId", getString(R.string.unity_interstitial_placement_id));
+        List<MediationConfiguration> unityConfig = new ArrayList<>();
+        unityConfig.add(new MediationConfiguration(AdFormat.INTERSTITIAL, unityAdsBundle));
+
+        UnityMediationAdapter adapter  = new UnityMediationAdapter();
+        adapter.initialize(this, new InitializationCompleteCallback() {
+            @Override
+            public void onInitializationSucceeded() {}
+            @Override
+            public void onInitializationFailed(String s) { Log.e("unityInit", s); }
+        }, unityConfig);
+
 
         int versionCode = BuildConfig.VERSION_CODE;
         versionCodeApp = String.valueOf(versionCode);
 
-        if (HelperMethods.INSTANCE.isNetworkAvailable(SplashActivity.this))
-            checkVersionCode();
-        else
-            Toast.makeText(SplashActivity.this, "Please Check your Internet Connection", Toast.LENGTH_LONG).show();
+        if (HelperMethods.INSTANCE.isNetworkAvailable(SplashActivity.this)) checkVersionCode();
+        else Toast.makeText(SplashActivity.this, "Please Check your Internet Connection", Toast.LENGTH_LONG).show();
     }
 
     /**
@@ -67,7 +129,7 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void checkVersionCode(){
-        db.collection("flags").document("version_code").get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        FirebaseFirestore.getInstance().collection("flags").document("version_code").get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 versionCode = String.valueOf(documentSnapshot.get("version_code_qb"));
