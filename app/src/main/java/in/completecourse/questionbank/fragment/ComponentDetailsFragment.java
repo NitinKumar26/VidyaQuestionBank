@@ -19,7 +19,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -112,7 +111,7 @@ public class ComponentDetailsFragment extends Fragment{
         mAdRequest = new AdRequest.Builder().build();
         if (getContext() != null) {
             mInterstitialAd = new InterstitialAd(getContext());
-            mInterstitialAd.setAdUnitId(getContext().getString(R.string.interstitial_ad_id));
+            mInterstitialAd.setAdUnitId(getContext().getString(R.string.admob_interstitial));
         }
 
         setAds();
@@ -341,7 +340,7 @@ public class ComponentDetailsFragment extends Fragment{
 
     private void loadNativeAds() {
         if (getContext() != null) {
-            AdLoader.Builder builder = new AdLoader.Builder(getContext(), getString(R.string.vqb_native_advanced));
+            AdLoader.Builder builder = new AdLoader.Builder(getContext(), getString(R.string.admob_native));
             adLoader = builder.forUnifiedNativeAd(
                     unifiedNativeAd -> {
                         // A native ad loaded successfully, check if the ad loader has finished loading

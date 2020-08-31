@@ -67,8 +67,8 @@ public class SplashActivity extends AppCompatActivity {
 
         AdColony.configure(SplashActivity.this, appOptions,
                 getString(R.string.adcolony_app_id),
-                getString(R.string.adcolony_interstitial));
-
+                getString(R.string.adcolony_interstitial),
+                getString(R.string.adcolony_banner));
 
         Bundle bundleInterstitial = new Bundle();
         bundleInterstitial.putString(AdColonyAdapterUtils.KEY_APP_ID, getString(R.string.adcolony_app_id));
@@ -82,7 +82,7 @@ public class SplashActivity extends AppCompatActivity {
         List<MediationConfiguration> config = new ArrayList<>();
 
         config.add(new MediationConfiguration(AdFormat.INTERSTITIAL, bundleInterstitial));
-        //config.add(new MediationConfiguration(AdFormat.BANNER, bundleBanner));
+        config.add(new MediationConfiguration(AdFormat.BANNER, bundleBanner));
 
         adColonyMediationAdapter.initialize(SplashActivity.this, new InitializationCompleteCallback() {
             @Override
@@ -91,11 +91,17 @@ public class SplashActivity extends AppCompatActivity {
             public void onInitializationFailed(String s) { Log.e("adColonyInit", s); }
         }, config);
 
-        Bundle unityAdsBundle = new Bundle();
-        unityAdsBundle.putString("gameId", getString(R.string.unity_game_id));
-        unityAdsBundle.putString("zoneId", getString(R.string.unity_interstitial_placement_id));
+        Bundle unityInterstitial = new Bundle();
+        unityInterstitial.putString("gameId", getString(R.string.unity_game_id));
+        unityInterstitial.putString("zoneId", getString(R.string.unity_interstitial_placement_id));
+
+        Bundle unityBanner = new Bundle();
+        unityBanner.putString("gameId", getString(R.string.unity_game_id));
+        unityBanner.putString("zoneId", getString(R.string.unity_banner));
+
         List<MediationConfiguration> unityConfig = new ArrayList<>();
-        unityConfig.add(new MediationConfiguration(AdFormat.INTERSTITIAL, unityAdsBundle));
+        unityConfig.add(new MediationConfiguration(AdFormat.INTERSTITIAL, unityInterstitial));
+        unityConfig.add(new MediationConfiguration(AdFormat.BANNER, unityBanner));
 
         UnityMediationAdapter adapter  = new UnityMediationAdapter();
         adapter.initialize(this, new InitializationCompleteCallback() {
@@ -129,50 +135,43 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void checkVersionCode(){
-        FirebaseFirestore.getInstance().collection("flags").document("version_code").get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                versionCode = String.valueOf(documentSnapshot.get("version_code_qb"));
-                if (versionCode.equalsIgnoreCase(versionCodeApp)){
-                    int SPLASH_TIME_OUT = 2000;
-                    /*
-                     * Showing splash screen with a timer. This will be useful when you
-                     * want to show case your app logo / company
-                     */
-                    new Handler().postDelayed(() -> {
-                        // This method will be executed once the timer is over
-                        // Start your app main activity
-                        // Session manager
-                        PrefManager session = new PrefManager(getApplicationContext());
+        FirebaseFirestore.getInstance().collection("flags").document("version_code").get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    versionCode = String.valueOf(documentSnapshot.get("version_code_qb"));
+                    if (versionCode.equalsIgnoreCase(versionCodeApp)){
+                        int SPLASH_TIME_OUT = 2000;
+                        /*
+                         * Showing splash screen with a timer. This will be useful when you
+                         * want to show case your app logo / company
+                         */
+                        new Handler().postDelayed(() -> {
+                            // This method will be executed once the timer is over
+                            // Start your app main activity
+                            // Session manager
+                            PrefManager session = new PrefManager(getApplicationContext());
 
-                        if (session.isFirstTimeLaunch()){
-                            //First time user (WelcomeActivity)
-                            Intent intent = new Intent(SplashActivity.this, WelcomeActivity.class);
-                            startActivity(intent);
-                            finish();
-                        }else if (session.isLoggedIn()){
-                            //user already logged in (MainActivity)
-                            Intent intent = new Intent(SplashActivity.this, MainActivity.class);
-                            startActivity(intent);
-                            finish();
-                        }else {
-                            //user is required to login (SignupActivity)
-                            Intent intent = new Intent(SplashActivity.this,SignupActivity.class);
-                            startActivity(intent);
-                            finish();
-                        }
-                    },SPLASH_TIME_OUT);
-                }else{
-                    Intent intent = new Intent(SplashActivity.this, UpdateVersionActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(SplashActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+                            if (session.isFirstTimeLaunch()){
+                                //First time user (WelcomeActivity)
+                                Intent intent = new Intent(SplashActivity.this, WelcomeActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }else if (session.isLoggedIn()){
+                                //user already logged in (MainActivity)
+                                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }else {
+                                //user is required to login (SignupActivity)
+                                Intent intent = new Intent(SplashActivity.this,SignupActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }
+                        },SPLASH_TIME_OUT);
+                    }else{
+                        Intent intent = new Intent(SplashActivity.this, UpdateVersionActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                }).addOnFailureListener(e -> Toast.makeText(SplashActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 }

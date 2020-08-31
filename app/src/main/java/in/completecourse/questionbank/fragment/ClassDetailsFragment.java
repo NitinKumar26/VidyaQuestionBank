@@ -109,7 +109,7 @@ public class ClassDetailsFragment extends Fragment{
         mAdRequest = new AdRequest.Builder().build();
         if (getContext() != null) {
             mInterstitialAd = new InterstitialAd(getContext());
-            mInterstitialAd.setAdUnitId(getContext().getString(R.string.interstitial_ad_id));
+            mInterstitialAd.setAdUnitId(getContext().getString(R.string.admob_interstitial));
         }
 
         setAds();
@@ -338,7 +338,7 @@ public class ClassDetailsFragment extends Fragment{
 
     private void loadNativeAds() {
         if (getContext() != null) {
-            AdLoader.Builder builder = new AdLoader.Builder(getContext(), getString(R.string.vqb_native_advanced));
+            AdLoader.Builder builder = new AdLoader.Builder(getContext(), getString(R.string.admob_native));
             adLoader = builder.forUnifiedNativeAd(
                     unifiedNativeAd -> {
                         // A native ad loaded successfully, check if the ad loader has finished loading

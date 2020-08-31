@@ -25,10 +25,10 @@
     <string name="update_now">Update Now</string>
 
     <string name="admob_app_id">ca-app-pub-4214231949040116~8644084695</string>
-    <string name="interstitial_ad_id">ca-app-pub-4214231949040116/4206487482</string>
-    <string name="banner_ad_unit">ca-app-pub-4214231949040116/6010523742</string>
-    <string name="native_advanced_test">ca-app-pub-3940256099942544/2247696110</string>
-    <string name="vqb_native_advanced">ca-app-pub-4214231949040116/9556849336</string>
+    <string name="admob_interstitial">ca-app-pub-4214231949040116/4206487482</string>
+    <string name="admob_banner">ca-app-pub-4214231949040116/6010523742</string>
+    <string name="admob_native">ca-app-pub-4214231949040116/9556849336</string>
+
     <string name="adcolony_app_id">app8285162b20ac4109b7</string>
     <string name="adcolony_interstitial">vz5c5633cc72df40e3bb</string>
     <string name="adcolony_banner">vzc84f104f54a147fbb5</string>
@@ -36,6 +36,7 @@
 
     <string name="unity_game_id">3798059</string>
     <string name="unity_interstitial_placement_id">VQBInterstitial</string>
+    <string name="unity_banner">VQBBanner</string>
 
     <string name="know_more">Know more..</string>
     <string name="mathematics">Mathematics</string>

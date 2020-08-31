@@ -19,7 +19,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
-//import com.google.android.ads.mediationtestsuite.MediationTestSuite;
+import com.google.android.ads.mediationtestsuite.MediationTestSuite;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -121,7 +121,7 @@ public class HomeFragment extends Fragment {
             Toast.makeText(view.getContext(), "Please check your internet connection.", Toast.LENGTH_SHORT).show();
         }
 
-        //MediationTestSuite.launch(getContext());
+        MediationTestSuite.launch(getContext());
     }
 
     @OnClick(R.id.btn_request_now)

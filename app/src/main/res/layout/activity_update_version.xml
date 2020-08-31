@@ -30,7 +30,7 @@
         ads:adSize="MEDIUM_RECTANGLE"
         android:layout_above="@id/linear_bottom"
         android:layout_marginBottom="12dp"
-        ads:adUnitId="@string/banner_ad_unit"/>
+        ads:adUnitId="@string/admob_banner"/>
 
 
     <LinearLayout

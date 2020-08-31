@@ -120,7 +120,7 @@
             ads:adSize="BANNER"
             android:visibility="gone"
             tools:visibility="gone"
-            ads:adUnitId="@string/banner_ad_unit"/>
+            ads:adUnitId="@string/admob_banner"/>
 
     </RelativeLayout>
 
