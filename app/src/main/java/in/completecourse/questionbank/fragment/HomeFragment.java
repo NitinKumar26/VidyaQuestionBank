@@ -69,7 +69,6 @@ public class HomeFragment extends Fragment {
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
     private PrefManager prefManager;
-    private FirebaseFirestore db;
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data)  {
@@ -89,8 +88,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        db = FirebaseFirestore.getInstance();
 
         prefManager = new PrefManager(view.getContext().getApplicationContext());
 
@@ -121,7 +118,7 @@ public class HomeFragment extends Fragment {
             Toast.makeText(view.getContext(), "Please check your internet connection.", Toast.LENGTH_SHORT).show();
         }
 
-        MediationTestSuite.launch(getContext());
+        //MediationTestSuite.launch(getContext());
     }
 
     @OnClick(R.id.btn_request_now)
@@ -289,18 +286,16 @@ public class HomeFragment extends Fragment {
     }
 
     private void getUpdates(){
-        db.collection("updates").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                List<Update> updates = queryDocumentSnapshots.toObjects(Update.class);
-                updateList = new ArrayList<>();
-                updateList.addAll(updates);
-                SliderAdapter sliderAdapter = new SliderAdapter(getContext(), updateList);
-                mViewPager.setAdapter(sliderAdapter);
-                indicator.setupWithViewPager(mViewPager, true);
-                Timer timer = new Timer();
-                timer.scheduleAtFixedRate(new SliderTimer(), 4000, 6000);
-            }
+        FirebaseFirestore.getInstance().collection("updates").get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Update> updates = queryDocumentSnapshots.toObjects(Update.class);
+                    updateList = new ArrayList<>();
+                    updateList.addAll(updates);
+                    SliderAdapter sliderAdapter = new SliderAdapter(getContext(), updateList);
+                    mViewPager.setAdapter(sliderAdapter);
+                    indicator.setupWithViewPager(mViewPager, true);
+                    Timer timer = new Timer();
+                    timer.scheduleAtFixedRate(new SliderTimer(), 4000, 6000);
         });
 
     }

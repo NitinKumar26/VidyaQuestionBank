@@ -4,10 +4,10 @@ import android.app.Application;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.adcolony.sdk.AdColony;
-import com.adcolony.sdk.AdColonyAppOptions;
-import com.google.ads.mediation.adcolony.AdColonyAdapterUtils;
-import com.google.ads.mediation.adcolony.AdColonyMediationAdapter;
+//import com.adcolony.sdk.AdColony;
+//import com.adcolony.sdk.AdColonyAppOptions;
+//import com.google.ads.mediation.adcolony.AdColonyAdapterUtils;
+//import com.google.ads.mediation.adcolony.AdColonyMediationAdapter;
 import com.google.android.gms.ads.AdFormat;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.RequestConfiguration;

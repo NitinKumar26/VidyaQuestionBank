@@ -61,12 +61,6 @@ object HelperMethods {
         transaction.commit()
     }
 
-    fun getPageMargin(activity: Activity): Int {
-        val metrics = DisplayMetrics()
-        activity.windowManager.defaultDisplay.getMetrics(metrics)
-        return metrics.widthPixels / 3 * 2
-    }
-
     interface ClickListener {
         fun onClick(position: Int)
     }
@@ -127,14 +121,24 @@ object HelperMethods {
         //check before trying to display them
         val icon = nativeAd.icon
 
-        if (icon == null) adView.iconView.visibility = View.INVISIBLE else {
+        if (icon == null) {
+            adView.iconView.visibility = View.GONE
+        }
+        else {
             (adView.iconView as ImageView).setImageDrawable(icon.drawable)
             adView.iconView.visibility = View.VISIBLE
         }
 
-        if (nativeAd.price == null) adView.priceView.visibility = View.INVISIBLE else {
+        if (nativeAd.price == null) adView.priceView.visibility = View.GONE else {
             adView.priceView.visibility = View.VISIBLE
             (adView.priceView as TextView).text = nativeAd.price
+        }
+
+        if (nativeAd.mediaContent == null) adView.mediaView.visibility = View.GONE else{
+            if (icon == null){
+                adView.mediaView.visibility = View.VISIBLE
+                adView.mediaView.setMediaContent(nativeAd.mediaContent)
+            }
         }
 
         /*
@@ -146,7 +150,7 @@ object HelperMethods {
         }
          */
 
-        if (nativeAd.starRating == null) adView.starRatingView.visibility = View.INVISIBLE else {
+        if (nativeAd.starRating == null) adView.starRatingView.visibility = View.GONE else {
             adView.starRatingView.visibility = View.VISIBLE
             (adView.starRatingView as RatingBar).rating = nativeAd.starRating.toFloat()
         }

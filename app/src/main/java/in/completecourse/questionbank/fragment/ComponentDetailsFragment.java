@@ -2,40 +2,30 @@ package in.completecourse.questionbank.fragment;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdLoader;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.formats.UnifiedNativeAd;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -62,7 +52,6 @@ import in.completecourse.questionbank.helper.HelperMethods;
 import in.completecourse.questionbank.model.Component;
 
 public class ComponentDetailsFragment extends Fragment{
-    //private ArrayList<Component> activityItemArrayList;
     private ProgressDialog pDialog;
     private ComponentAdapter adapter;
     @BindView(R.id.recyclerView)
@@ -70,14 +59,6 @@ public class ComponentDetailsFragment extends Fragment{
     @BindView(R.id.adView_banner_class_details)
     AdView mBannerAdView;
     private InterstitialAd mInterstitialAd;
-    private AdRequest mAdRequest;
-    private FirebaseFirestore db;
-    private Boolean adsense, inHouse, interstitial, banner;
-    private LinearLayout mLinearInHouse;
-    private String mBannerUrl, mIconUrl, mInstallUrl, mName, mRating;
-    private ImageView mInHouseBanner, mInHouseAppIcon;
-    private TextView mInhouseAppName, mInHouseRating;
-    private Button mInHouseInstallButton;
 
     //The AdLoader used to load ads
     private AdLoader adLoader;
@@ -89,7 +70,6 @@ public class ComponentDetailsFragment extends Fragment{
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.e("name", "ComponentDetailsFragment");
         View view = inflater.inflate(R.layout.fragment_class_details, container, false);
         ButterKnife.bind(this, view);
         return view;
@@ -99,31 +79,26 @@ public class ComponentDetailsFragment extends Fragment{
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        db = FirebaseFirestore.getInstance();
-
-        mLinearInHouse = view.findViewById(R.id.linear_in_house);
-        mInHouseBanner = view.findViewById(R.id.app_banner);
-        mInHouseAppIcon = view.findViewById(R.id.app_icon);
-        mInhouseAppName = view.findViewById(R.id.app_name);
-        mInHouseRating = view.findViewById(R.id.app_rating);
-        mInHouseInstallButton = view.findViewById(R.id.btn_install);
-
-        mAdRequest = new AdRequest.Builder().build();
         if (getContext() != null) {
             mInterstitialAd = new InterstitialAd(getContext());
             mInterstitialAd.setAdUnitId(getContext().getString(R.string.admob_interstitial));
+
+            mInterstitialAd.loadAd(new AdRequest.Builder().build());
+            mInterstitialAd.setAdListener(new AdListener() {
+                @Override
+                public void onAdClosed() {
+                    super.onAdClosed();
+                    //Load the next interstitial ad
+                    mInterstitialAd.loadAd(new AdRequest.Builder().build());
+                }
+            });
         }
 
-        setAds();
-
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext(), RecyclerView.VERTICAL, false));
-        recyclerView.addItemDecoration(new DividerItemDecoration(view.getContext(), RecyclerView.VERTICAL));
 
-        //recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 3, RecyclerView.VERTICAL, false));
         recyclerView.addOnItemTouchListener(new HelperMethods.RecyclerTouchListener(view.getContext(), position -> {
             if (adapter.getItemViewType(position) == 0) {
-                if (mInterstitialAd.isLoaded())
-                    mInterstitialAd.show(); //Show Interstitial Ad;
+                if (mInterstitialAd.isLoaded()) mInterstitialAd.show(); //Show Interstitial Ad;
                 Component component = (Component) mRecyclerViewItems.get(position);
                 Intent intent = new Intent(view.getContext(), PDFActivity.class);
                 intent.putExtra("url", component.getmComponentURL());
@@ -144,82 +119,6 @@ public class ComponentDetailsFragment extends Fragment{
                 e.printStackTrace();
             }
         }
-    }
-
-    private void setAds(){
-        db.collection("flags").document("ads_flags").get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(final DocumentSnapshot documentSnapshot) {
-                adsense = documentSnapshot.getBoolean("adsense");
-                inHouse = documentSnapshot.getBoolean("in_house");
-                interstitial = documentSnapshot.getBoolean("interstitial");
-                banner = documentSnapshot.getBoolean("banner");
-
-                if (adsense){
-                    if (banner) {
-                        mBannerAdView.setVisibility(View.VISIBLE);
-                        mLinearInHouse.setVisibility(View.GONE);
-                        mBannerAdView.loadAd(mAdRequest);
-                    }
-                    if (interstitial) {
-                        mInterstitialAd.loadAd(new AdRequest.Builder().build());
-                        mInterstitialAd.setAdListener(new AdListener() {
-                            @Override
-                            public void onAdClosed() {
-                                super.onAdClosed();
-                                //Load the next interstitial ad
-                                mInterstitialAd.loadAd(new AdRequest.Builder().build());
-                            }
-                        });
-                    }
-                }else if (inHouse){
-                    mLinearInHouse.setVisibility(View.VISIBLE);
-                    mBannerAdView.setVisibility(View.GONE);
-
-                    db.collection("in_house_ads").whereEqualTo("is_live", true).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot document) {
-                            for (QueryDocumentSnapshot doc : document) {
-                                //Log.d("document", doc.getId() + " => " + doc.getData());
-                                mBannerUrl = doc.getString("banner_url");
-                                mIconUrl = doc.getString("icon_url");
-                                mInstallUrl = doc.getString("install_url");
-                                mName = doc.getString("name");
-                                mRating = String.valueOf(doc.get("rating"));
-                            }
-
-
-                            if (getContext() != null) {
-                                Glide.with(getContext()).load(mBannerUrl).into(mInHouseBanner);
-                                Glide.with(getContext()).load(mIconUrl).into(mInHouseAppIcon);
-                            }
-                            mInhouseAppName.setText(mName);
-                            mInHouseRating.setText(mRating);
-
-                            mInHouseInstallButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    Intent intentRate = new Intent("android.intent.action.VIEW",
-                                            Uri.parse(mInstallUrl));
-                                    startActivity(intentRate);
-
-                                }
-                            });
-
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            //Log.e("exception", "exception" + e.getMessage());
-
-                        }
-                    });
-                }else{
-                    mBannerAdView.setVisibility(View.GONE);
-                    mLinearInHouse.setVisibility(View.GONE);
-                }
-            }
-        });
     }
 
     public static class JSONTransmitter extends AsyncTask<JSONObject, JSONObject, JSONObject> {
@@ -267,36 +166,37 @@ public class ComponentDetailsFragment extends Fragment{
                         item.setmComponentName(chapterObject.getString("componentname"));
                         item.setmComponentURL(chapterObject.getString("componenturl"));
                         activity.mRecyclerViewItems.add(item);
+
                         switch (i%10){
                             case 0:
-                                item.setCardBackground(activity.getResources().getDrawable(R.drawable.gradient_ten));
+                                item.setCardBackground(ResourcesCompat.getDrawable(activity.getResources(), R.drawable.gradient, null));
                                 break;
                             case 1:
-                                item.setCardBackground(activity.getResources().getDrawable(R.drawable.gradient_nine));
+                                item.setCardBackground(ResourcesCompat.getDrawable(activity.getResources(), R.drawable.gradient_one, null));
                                 break;
                             case 2:
-                                item.setCardBackground(activity.getResources().getDrawable(R.drawable.gradient_eight));
+                                item.setCardBackground(ResourcesCompat.getDrawable(activity.getResources(), R.drawable.gradient_two, null));
                                 break;
                             case 3:
-                                item.setCardBackground(activity.getResources().getDrawable(R.drawable.gradient_seven));
+                                item.setCardBackground(ResourcesCompat.getDrawable(activity.getResources(), R.drawable.gradient_three, null));
                                 break;
                             case 4:
-                                item.setCardBackground(activity.getResources().getDrawable(R.drawable.gradient_six));
+                                item.setCardBackground(ResourcesCompat.getDrawable(activity.getResources(), R.drawable.gradient_four, null));
                                 break;
                             case 5:
-                                item.setCardBackground(activity.getResources().getDrawable(R.drawable.gradient_five));
+                                item.setCardBackground(ResourcesCompat.getDrawable(activity.getResources(), R.drawable.gradient_five, null));
                                 break;
                             case 6:
-                                item.setCardBackground(activity.getResources().getDrawable(R.drawable.gradient_four));
+                                item.setCardBackground(ResourcesCompat.getDrawable(activity.getResources(), R.drawable.gradient_six, null));
                                 break;
                             case 7:
-                                item.setCardBackground(activity.getResources().getDrawable(R.drawable.gradient_three));
+                                item.setCardBackground(ResourcesCompat.getDrawable(activity.getResources(), R.drawable.gradient_seven, null));
                                 break;
                             case 8:
-                                item.setCardBackground(activity.getResources().getDrawable(R.drawable.gradient_two));
+                                item.setCardBackground(ResourcesCompat.getDrawable(activity.getResources(), R.drawable.gradient_eight, null));
                                 break;
                             case 9:
-                                item.setCardBackground(activity.getResources().getDrawable(R.drawable.gradient_one));
+                                item.setCardBackground(ResourcesCompat.getDrawable(activity.getResources(), R.drawable.gradient_nine, null));
                                 break;
                         }
                     }
@@ -324,7 +224,7 @@ public class ComponentDetailsFragment extends Fragment{
         }
     }
 
-    private void insertAdsInMenuItems(List<UnifiedNativeAd> mNativeAds, List<Object> mRecyclerViewItems) {
+    private void insertAdsInMenuItems(@NotNull List<UnifiedNativeAd> mNativeAds, List<Object> mRecyclerViewItems) {
         if (mNativeAds.size() <= 0) {
             return;
         }

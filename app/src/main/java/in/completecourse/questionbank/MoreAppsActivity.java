@@ -70,4 +70,5 @@ public class MoreAppsActivity extends AppCompatActivity {
             adapter.notifyDataSetChanged();
         }).addOnFailureListener(e -> Toast.makeText(MoreAppsActivity.this, e.getMessage(), Toast.LENGTH_LONG).show());
     }
+
 }

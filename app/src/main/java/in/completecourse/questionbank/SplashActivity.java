@@ -16,13 +16,14 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
-import com.adcolony.sdk.AdColony;
-import com.adcolony.sdk.AdColonyAppOptions;
-import com.google.ads.mediation.adcolony.AdColonyAdapterUtils;
-import com.google.ads.mediation.adcolony.AdColonyMediationAdapter;
+//import com.adcolony.sdk.AdColony;
+//import com.adcolony.sdk.AdColonyAppOptions;
+//import com.google.ads.mediation.adcolony.AdColonyAdapterUtils;
+//import com.google.ads.mediation.adcolony.AdColonyMediationAdapter;
 import com.google.ads.mediation.unity.UnityMediationAdapter;
 import com.google.android.gms.ads.AdFormat;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
 import com.google.android.gms.ads.mediation.InitializationCompleteCallback;
 import com.google.android.gms.ads.mediation.MediationConfiguration;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -32,6 +33,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.unity3d.ads.metadata.MetaData;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import in.completecourse.questionbank.helper.HelperMethods;
@@ -59,38 +63,6 @@ public class SplashActivity extends AppCompatActivity {
 
         MobileAds.initialize(SplashActivity.this, getString(R.string.admob_app_id));
 
-        //GDPR Consent for AdColony Personalized Ads
-        AdColonyAppOptions appOptions = AdColonyMediationAdapter.getAppOptions();
-        appOptions.setPrivacyFrameworkRequired(AdColonyAppOptions.GDPR, true);
-        appOptions.setPrivacyConsentString(AdColonyAppOptions.GDPR, "1");
-        appOptions.setKeepScreenOn(true);
-
-        AdColony.configure(SplashActivity.this, appOptions,
-                getString(R.string.adcolony_app_id),
-                getString(R.string.adcolony_interstitial),
-                getString(R.string.adcolony_banner));
-
-        Bundle bundleInterstitial = new Bundle();
-        bundleInterstitial.putString(AdColonyAdapterUtils.KEY_APP_ID, getString(R.string.adcolony_app_id));
-        bundleInterstitial.putString(AdColonyAdapterUtils.KEY_ZONE_ID, getString(R.string.adcolony_interstitial));
-
-        Bundle bundleBanner = new Bundle();
-        bundleBanner.putString(AdColonyAdapterUtils.KEY_APP_ID, getString(R.string.adcolony_app_id));
-        bundleBanner.putString(AdColonyAdapterUtils.KEY_ZONE_ID, getString(R.string.adcolony_banner));
-
-        AdColonyMediationAdapter adColonyMediationAdapter = new AdColonyMediationAdapter();
-        List<MediationConfiguration> config = new ArrayList<>();
-
-        config.add(new MediationConfiguration(AdFormat.INTERSTITIAL, bundleInterstitial));
-        config.add(new MediationConfiguration(AdFormat.BANNER, bundleBanner));
-
-        adColonyMediationAdapter.initialize(SplashActivity.this, new InitializationCompleteCallback() {
-            @Override
-            public void onInitializationSucceeded() {}
-            @Override
-            public void onInitializationFailed(String s) { Log.e("adColonyInit", s); }
-        }, config);
-
         Bundle unityInterstitial = new Bundle();
         unityInterstitial.putString("gameId", getString(R.string.unity_game_id));
         unityInterstitial.putString("zoneId", getString(R.string.unity_interstitial_placement_id));
@@ -117,6 +89,11 @@ public class SplashActivity extends AppCompatActivity {
 
         if (HelperMethods.INSTANCE.isNetworkAvailable(SplashActivity.this)) checkVersionCode();
         else Toast.makeText(SplashActivity.this, "Please Check your Internet Connection", Toast.LENGTH_LONG).show();
+
+        if (BuildConfig.DEBUG){
+            RequestConfiguration configuration = new RequestConfiguration.Builder().setTestDeviceIds(Collections.singletonList("808EBC3F3CDB7990C5E47717B824C7AC")).build();
+            MobileAds.setRequestConfiguration(configuration);
+        }
     }
 
     /**

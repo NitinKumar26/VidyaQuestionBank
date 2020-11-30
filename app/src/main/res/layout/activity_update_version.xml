@@ -7,31 +7,30 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_alignParentTop="true">
+        android:layout_alignParentTop="true"
+        android:id="@+id/linear_banner">
 
         <ImageView
-            android:layout_width="300dp"
-            android:layout_height="200dp"
+            android:layout_width="200dp"
+            android:layout_height="100dp"
             android:layout_gravity="center_horizontal"
             android:scaleType="centerInside"
             app:srcCompat="@drawable/banner" />
 
+        <FrameLayout
+            android:id="@+id/fl_adplaceholder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            />
+
+        <!--
+        <include layout="@layout/ad_unified" />
+        -->
+
     </LinearLayout>
-
-
-    <com.google.android.gms.ads.AdView
-        xmlns:ads="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/adView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        ads:adSize="MEDIUM_RECTANGLE"
-        android:layout_above="@id/linear_bottom"
-        android:layout_marginBottom="12dp"
-        ads:adUnitId="@string/admob_banner"/>
-
 
     <LinearLayout
         android:id="@+id/linear_bottom"
@@ -52,7 +51,6 @@
             android:textColor="#000000"
             android:textStyle="bold"/>
 
-
         <Button
             android:id="@+id/update_now_button"
             android:layout_width="match_parent"
@@ -64,5 +62,7 @@
             android:text="@string/update_now"/>
 
     </LinearLayout>
+
+
 
 </RelativeLayout>

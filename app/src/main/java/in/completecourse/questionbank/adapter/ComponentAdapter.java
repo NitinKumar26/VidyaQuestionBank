@@ -8,9 +8,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.ads.formats.MediaView;
 import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.android.gms.ads.formats.UnifiedNativeAdView;
 
@@ -19,7 +19,6 @@ import java.util.List;
 import in.completecourse.questionbank.R;
 import in.completecourse.questionbank.helper.HelperMethods;
 import in.completecourse.questionbank.model.Component;
-
 
 public class ComponentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int MENU_ITEM_VIEW_TYPE = 0;
@@ -35,15 +34,15 @@ public class ComponentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView tvTitle, tvSubTitle, tvImage;
+        private TextView tvTitle, tvSubTitle, tvSerial;
         private RelativeLayout relativeLayout;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvTitle = itemView.findViewById(R.id.tv_title);
             tvSubTitle = itemView.findViewById(R.id.tv_subtitle);
-            relativeLayout = itemView.findViewById(R.id.img);
-            tvImage = itemView.findViewById(R.id.tv_img);
+            relativeLayout = itemView.findViewById(R.id.relative_serial);
+            tvSerial = itemView.findViewById(R.id.tv_serial);
         }
     }
 
@@ -91,14 +90,18 @@ public class ComponentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                 Component activityItem = (Component) activityItemsList.get(i);
                 viewHolder.tvTitle.setText(activityItem.getmComponentName());
-                //holder.tvSubTitle.setText(activityItem.getSub_title());
-                viewHolder.tvImage.setText(String.valueOf(activityItem.getmComponentName().charAt(0)));
+                viewHolder.tvSerial.setText(String.valueOf(activityItem.getmComponentName().charAt(0)));
 
-                if (i % 5 == 0) viewHolder.relativeLayout.setBackground(context.getResources().getDrawable(R.drawable.gradient_two));
-                else if (i % 5 == 1) viewHolder.relativeLayout.setBackground(context.getResources().getDrawable(R.drawable.gradient_three));
-                else if (i % 5 == 2) viewHolder.relativeLayout.setBackground(context.getResources().getDrawable(R.drawable.gradient_four));
-                else if (i % 5 == 3) viewHolder.relativeLayout.setBackground(context.getResources().getDrawable(R.drawable.gradient_five));
-                else viewHolder.relativeLayout.setBackground(context.getResources().getDrawable(R.drawable.gradient));
+                if (i % 10 == 0) viewHolder.relativeLayout.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.gradient_one, null));
+                else if (i % 10 == 1) viewHolder.relativeLayout.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.gradient_two, null));
+                else if (i % 10 == 2) viewHolder.relativeLayout.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.gradient_three, null));
+                else if (i % 10 == 3) viewHolder.relativeLayout.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.gradient_four, null));
+                else if (i % 10 == 4) viewHolder.relativeLayout.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.gradient_five, null));
+                else if (i % 10 == 5) viewHolder.relativeLayout.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.gradient_six, null));
+                else if (i % 10 == 6) viewHolder.relativeLayout.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.gradient_seven, null));
+                else if (i % 10 == 7) viewHolder.relativeLayout.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.gradient_eight, null));
+                else if (i % 10 == 8) viewHolder.relativeLayout.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.gradient_nine, null));
+                else if (i % 10 == 9) viewHolder.relativeLayout.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.gradient_ten, null));
         }
     }
 
@@ -120,17 +123,13 @@ public class ComponentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
             //The MediaView will display a video asset if one is present in the ad, and the
             //first image asset otherwise.
-            adView.setMediaView((MediaView) adView.findViewById(R.id.ad_media));
+            adView.setMediaView(adView.findViewById(R.id.ad_media));
 
             //Register the view used for each individual asset
             adView.setHeadlineView(adView.findViewById(R.id.ad_headline));
-            //adView.setBodyView(adView.findViewById(R.id.ad_body));
-            //adView.setCallToActionView(adView.findViewById(R.id.ad_call_to_action));
             adView.setIconView(adView.findViewById(R.id.ad_icon));
             adView.setPriceView(adView.findViewById(R.id.ad_price));
             adView.setStarRatingView(adView.findViewById(R.id.ad_stars));
-            //adView.setStoreView(adView.findViewById(R.id.ad_store));
-            //adView.setAdvertiserView(adView.findViewById(R.id.ad_advertiser));
 
         }
     }
