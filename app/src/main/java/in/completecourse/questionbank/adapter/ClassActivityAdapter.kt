@@ -15,7 +15,7 @@ import com.google.android.gms.ads.formats.MediaView
 import com.google.android.gms.ads.formats.UnifiedNativeAd
 import com.google.android.gms.ads.formats.UnifiedNativeAdView
 
-class ClassActivityAdapter(private val context: Context, private var activityItemsList: List<Any>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ClassActivityAdapter(private val context: Context?, private var activityItemsList: List<Any>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     internal class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvTitle: TextView = itemView.findViewById(R.id.tv_title)
         val tvSubTitle: TextView = itemView.findViewById(R.id.tv_subtitle)
@@ -56,7 +56,7 @@ class ClassActivityAdapter(private val context: Context, private var activityIte
         when (viewType) {
             UNIFIED_NATIVE_AD_VIEW_TYPE -> {
                 val nativeAd = activityItemsList[i] as UnifiedNativeAd
-                HelperMethods.populateAdView(nativeAd, (viewHolder as UnifiedNativeAdViewHolder).view)
+                HelperMethods.populateAdView(nativeAd, (viewHolder as UnifiedNativeAdViewHolder).adView)
             }
             MENU_ITEM_VIEW_TYPE -> {
                 val holder = viewHolder as MyViewHolder
@@ -64,11 +64,14 @@ class ClassActivityAdapter(private val context: Context, private var activityIte
                 holder.tvTitle.text = activityItem.activityKaName
                 holder.tvSerial.text = activityItem.activityKaName[0].toString()
                 holder.tvSubTitle.text = activityItem.desc
-                if (i % 5 == 0) holder.relativeLayout.background = ResourcesCompat.getDrawable(context.resources, R.drawable.gradient_two, null)
-                else if (i % 5 == 1) holder.relativeLayout.background = ResourcesCompat.getDrawable(context.resources, R.drawable.gradient_three, null)
-                else if (i % 5 == 2) holder.relativeLayout.background = ResourcesCompat.getDrawable(context.resources, R.drawable.gradient_four, null)
-                else if (i % 5 == 3) holder.relativeLayout.background = ResourcesCompat.getDrawable(context.resources, R.drawable.gradient_five, null)
-                else holder.relativeLayout.background = ResourcesCompat.getDrawable(context.resources, R.drawable.gradient, null)
+                if (context != null)
+                when {
+                    i % 5 == 0 -> holder.relativeLayout.background = ResourcesCompat.getDrawable(context.resources, R.drawable.gradient_two, null)
+                    i % 5 == 1 -> holder.relativeLayout.background = ResourcesCompat.getDrawable(context.resources, R.drawable.gradient_three, null)
+                    i % 5 == 2 -> holder.relativeLayout.background = ResourcesCompat.getDrawable(context.resources, R.drawable.gradient_four, null)
+                    i % 5 == 3 -> holder.relativeLayout.background = ResourcesCompat.getDrawable(context.resources, R.drawable.gradient_five, null)
+                    else -> holder.relativeLayout.background = ResourcesCompat.getDrawable(context.resources, R.drawable.gradient, null)
+                }
             }
             else -> {
                 val holder = viewHolder as MyViewHolder
@@ -76,11 +79,14 @@ class ClassActivityAdapter(private val context: Context, private var activityIte
                 holder.tvTitle.text = activityItem.activityKaName
                 holder.tvSerial.text = activityItem.activityKaName[0].toString()
                 holder.tvSubTitle.text = activityItem.desc
-                if (i % 5 == 0) holder.relativeLayout.background = ResourcesCompat.getDrawable(context.resources, R.drawable.gradient_two, null)
-                else if (i % 5 == 1) holder.relativeLayout.background = ResourcesCompat.getDrawable(context.resources, R.drawable.gradient_three, null)
-                else if (i % 5 == 2) holder.relativeLayout.background = ResourcesCompat.getDrawable(context.resources, R.drawable.gradient_four, null)
-                else if (i % 5 == 3) holder.relativeLayout.background = ResourcesCompat.getDrawable(context.resources, R.drawable.gradient_five, null)
-                else holder.relativeLayout.background = ResourcesCompat.getDrawable(context.resources, R.drawable.gradient, null)
+                if (context != null)
+                when {
+                    i % 5 == 0 -> holder.relativeLayout.background = ResourcesCompat.getDrawable(context.resources, R.drawable.gradient_two, null)
+                    i % 5 == 1 -> holder.relativeLayout.background = ResourcesCompat.getDrawable(context.resources, R.drawable.gradient_three, null)
+                    i % 5 == 2 -> holder.relativeLayout.background = ResourcesCompat.getDrawable(context.resources, R.drawable.gradient_four, null)
+                    i % 5 == 3 -> holder.relativeLayout.background = ResourcesCompat.getDrawable(context.resources, R.drawable.gradient_five, null)
+                    else -> holder.relativeLayout.background = ResourcesCompat.getDrawable(context.resources, R.drawable.gradient, null)
+                }
             }
         }
     }
@@ -89,24 +95,15 @@ class ClassActivityAdapter(private val context: Context, private var activityIte
         this.activityItemsList = activityItemsList
     }
 
-    internal class UnifiedNativeAdViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val view: UnifiedNativeAdView = view.findViewById(R.id.unified_ad)
+    internal class UnifiedNativeAdViewHolder internal constructor(view: View) : RecyclerView.ViewHolder(view) {
+        val adView: UnifiedNativeAdView = view.findViewById(R.id.unified_ad)
 
         init {
-
-            //The MediaView will display a video asset if one is present in the ad, and the
-            //first image asset otherwise.
-            view.setMediaView(view.findViewById<View>(R.id.ad_media) as MediaView)
-
-            //Register the view used for each individual asset
-            view.setHeadlineView(view.findViewById<View>(R.id.ad_headline))
-            //adView.setBodyView(adView.findViewById(R.id.ad_body));
-            //adView.setCallToActionView(adView.findViewById(R.id.ad_call_to_action));
-            view.setIconView(view.findViewById<View>(R.id.ad_icon))
-            view.setPriceView(view.findViewById<View>(R.id.ad_price))
-            view.setStarRatingView(view.findViewById<View>(R.id.ad_stars))
-            //adView.setStoreView(adView.findViewById(R.id.ad_store));
-            //adView.setAdvertiserView(adView.findViewById(R.id.ad_advertiser));
+            adView.mediaView = view.findViewById(R.id.ad_media) as MediaView
+            adView.headlineView = view.findViewById(R.id.ad_headline)
+            adView.iconView = view.findViewById(R.id.ad_icon)
+            adView.priceView = view.findViewById(R.id.ad_price)
+            adView.starRatingView = view.findViewById(R.id.ad_stars)
         }
     }
 

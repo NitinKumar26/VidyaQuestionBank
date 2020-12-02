@@ -26,6 +26,7 @@ import com.google.android.gms.ads.formats.UnifiedNativeAdView
 import java.util.*
 
 object HelperMethods {
+
     /**
      * Making notification bar transparent
      */
@@ -37,16 +38,16 @@ object HelperMethods {
         }
     }
 
-    fun loadFragment(fragment: Fragment?, activity: AppCompatActivity) {
+    fun loadFragment(fragment: Fragment?, activity: AppCompatActivity?) {
         // load fragment
-        val transaction = activity.supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.frame_container, fragment!!)
-        transaction.commit()
+        val transaction = activity?.supportFragmentManager?.beginTransaction()
+        transaction?.replace(R.id.frame_container, fragment!!)
+        transaction?.commit()
     }
 
-    fun showFragment(fragment: Fragment, activity: AppCompatActivity) {
+    fun showFragment(fragment: Fragment?, activity: AppCompatActivity) {
         val transaction = activity.supportFragmentManager.beginTransaction()
-        if (fragment.isAdded) {
+        if (fragment!!.isAdded) {
             transaction.show(fragment)
         } else {
             transaction.add(R.id.frame_container, fragment)
@@ -55,9 +56,9 @@ object HelperMethods {
         transaction.commit()
     }
 
-    fun hideFragment(fragment: Fragment, activity: AppCompatActivity) {
+    fun hideFragment(fragment: Fragment?, activity: AppCompatActivity) {
         val transaction = activity.supportFragmentManager.beginTransaction()
-        if (fragment.isAdded) transaction.hide(fragment)
+        if (fragment!!.isAdded) transaction.hide(fragment)
         transaction.commit()
     }
 
@@ -65,22 +66,24 @@ object HelperMethods {
         fun onClick(position: Int)
     }
 
-    class RecyclerTouchListener(context: Context?, private val clickListener: ClickListener?) : OnItemTouchListener {
-
-        private val gestureDetector: GestureDetector = GestureDetector(context, object : SimpleOnGestureListener() {
+    class RecyclerTouchListener(context: Context?, private val clickListener: ClickListener?) : RecyclerView.OnItemTouchListener {
+        private val gestureDetector: GestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
             override fun onSingleTapUp(e: MotionEvent): Boolean {
                 return true
             }
         })
+
         override fun onInterceptTouchEvent(recyclerView: RecyclerView, motionEvent: MotionEvent): Boolean {
-            val child: View? = recyclerView.findChildViewUnder(motionEvent.x, motionEvent.y)
+            val child = recyclerView.findChildViewUnder(motionEvent.x, motionEvent.y)
             if (child != null && clickListener != null && gestureDetector.onTouchEvent(motionEvent)) {
                 clickListener.onClick(recyclerView.getChildAdapterPosition(child))
             }
             return false
         }
+
         override fun onTouchEvent(recyclerView: RecyclerView, motionEvent: MotionEvent) {}
         override fun onRequestDisallowInterceptTouchEvent(b: Boolean) {}
+
     }
 
     fun generateChecksum(): String? {

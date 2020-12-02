@@ -30,7 +30,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import in.completecourse.questionbank.PDFActivity;
 import in.completecourse.questionbank.R;
-import in.completecourse.questionbank.adapter.NewArrivalAdapter;
 import in.completecourse.questionbank.app.AppConfig;
 import in.completecourse.questionbank.helper.HttpHandler;
 import in.completecourse.questionbank.model.BookNewArrival;
