@@ -14,7 +14,7 @@ android {
         versionCode 16
         versionName "v1.5.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        android.defaultConfig.javaCompileOptions.annotationProcessorOptions.includeCompileClasspath = true
+        //android.defaultConfig.javaCompileOptions.annotationProcessorOptions.includeCompileClasspath = true
         android.defaultConfig.vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
     }
